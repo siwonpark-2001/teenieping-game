@@ -2,272 +2,427 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💕 티니핑 이름 맞추기</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>티니핑 도감</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-    background: linear-gradient(135deg, #ffe0f0, #fff0fb);
-    min-height: 100vh;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 20px;
-  }
-  h1 { color: #e05090; font-size: 2rem; margin-bottom: 4px; }
-  .subtitle { color: #c060a0; font-size: 0.88rem; margin-bottom: 14px; }
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--pink:#e05090;--pink2:#c03070;--purple:#9b59b6;--pink-light:#f0c0d8;--pink-bg:#fff0fb;}
+body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:linear-gradient(160deg,#ffe8f5 0%,#f0e0ff 100%);min-height:100vh;display:flex;justify-content:center;}
+.app{width:100%;max-width:480px;min-height:100vh;position:relative;}
 
-  .controls { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
-  .filter-btn {
-    padding: 5px 13px; border: 2px solid #e070b0;
-    border-radius: 20px; background: white; color: #e070b0;
-    cursor: pointer; font-size: 0.82rem; font-weight: bold; transition: all .2s;
-  }
-  .filter-btn.active { background: #e070b0; color: white; }
-  .filter-btn:hover { transform: scale(1.05); }
+/* SCREENS */
+.screen{display:none;flex-direction:column;min-height:100vh;}
+.screen.active{display:flex;}
 
-  .mode-toggle { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
-  .mode-btn {
-    padding: 4px 13px; border: 2px solid #e070b0; border-radius: 16px;
-    background: white; color: #e070b0; cursor: pointer; font-size: .8rem; font-weight: bold;
-  }
-  .mode-btn.active { background: #e070b0; color: white; }
+/* ── HOME ── */
+.home-header{background:linear-gradient(135deg,#e05090,#9b59b6);color:white;text-align:center;padding:44px 20px 28px;border-radius:0 0 32px 32px;}
+.home-header h1{font-size:1.9rem;font-weight:900;letter-spacing:-0.5px;}
+.home-header p{font-size:.82rem;opacity:.8;margin-top:5px;}
+.home-body{padding:18px 16px 24px;flex:1;display:flex;flex-direction:column;gap:14px;}
 
-  .scoreboard { display: flex; gap: 20px; margin-bottom: 16px; }
-  .score-box {
-    text-align: center; background: white; border-radius: 14px;
-    padding: 8px 18px; box-shadow: 0 2px 8px rgba(224,80,144,.15);
-  }
-  .score-label { font-size: .72rem; color: #aaa; }
-  .score-val { font-size: 1.5rem; font-weight: bold; color: #e05090; }
+.daily-card{background:white;border-radius:22px;padding:22px 18px 18px;box-shadow:0 4px 20px rgba(224,80,144,.15);text-align:center;}
+.daily-label{font-size:.72rem;font-weight:700;color:var(--pink);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;}
+.daily-img-wrap{width:130px;height:130px;margin:0 auto 14px;border-radius:50%;background:#ffe8f5;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.daily-img-wrap img{width:110px;height:110px;object-fit:contain;transition:filter .3s;}
+.daily-img-wrap img.silhouette{filter:brightness(0) opacity(.3);}
+.daily-char-name{font-size:1.05rem;font-weight:700;color:#333;min-height:26px;margin-bottom:3px;}
+.daily-char-season{font-size:.78rem;color:#aaa;margin-bottom:14px;min-height:18px;}
+.played-badge{display:flex;align-items:center;gap:8px;background:#f8f8f8;border-radius:12px;padding:10px 14px;margin-bottom:12px;text-align:left;}
+.played-badge-icon{font-size:1.3rem;flex-shrink:0;}
+.played-badge-text{font-size:.82rem;color:#666;line-height:1.4;}
+.played-badge-text strong{color:#333;}
+.btn-primary{display:block;width:100%;padding:13px;background:linear-gradient(135deg,var(--pink),var(--purple));color:white;border:none;border-radius:14px;font-size:.97rem;font-weight:700;cursor:pointer;transition:opacity .15s,transform .1s;}
+.btn-primary:active{opacity:.88;transform:scale(.98);}
+.btn-primary:disabled{background:#ddd;color:#bbb;cursor:default;transform:none;opacity:1;}
 
-  .card {
-    background: white; border-radius: 22px;
-    box-shadow: 0 4px 20px rgba(224,80,144,.2);
-    padding: 24px; max-width: 420px; width: 100%; text-align: center;
-  }
-  .season-badge {
-    display: inline-block; background: #ffe0f0; color: #e05090;
-    border-radius: 10px; padding: 2px 11px;
-    font-size: .76rem; font-weight: bold; margin-bottom: 12px;
-  }
-  .img-wrap {
-    width: 200px; height: 200px; margin: 0 auto 16px;
-    display: flex; align-items: center; justify-content: center;
-    background: #fff8fd; border-radius: 16px;
-  }
-  .img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
-  .progress { font-size: .8rem; color: #bbb; margin-bottom: 10px; }
+.dex-card{background:white;border-radius:22px;padding:16px 18px;box-shadow:0 4px 20px rgba(224,80,144,.1);}
+.dex-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.dex-card-title{font-size:.88rem;font-weight:700;color:#333;}
+.dex-card-count{font-size:.88rem;font-weight:700;color:var(--pink);}
+.prog-bg{height:8px;background:#f0e0f8;border-radius:4px;overflow:hidden;margin-bottom:12px;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple));border-radius:4px;transition:width .6s ease;}
+.btn-outline{display:block;width:100%;padding:11px;background:white;color:var(--pink);border:2px solid var(--pink-light);border-radius:14px;font-size:.88rem;font-weight:700;cursor:pointer;transition:background .15s;}
+.btn-outline:hover{background:var(--pink-bg);}
 
-  .input-row { display: flex; gap: 7px; margin-bottom: 8px; }
-  input[type=text] {
-    flex: 1; border: 2px solid #f0c0d8; border-radius: 11px;
-    padding: 9px 12px; font-size: 1rem; outline: none; transition: border-color .2s;
-  }
-  input[type=text]:focus { border-color: #e070b0; }
-  .btn-submit {
-    background: #e070b0; color: white; border: none;
-    border-radius: 11px; padding: 9px 16px; font-size: 1rem; font-weight: bold; cursor: pointer;
-  }
-  .btn-submit:hover { background: #c050a0; }
+/* ── GAME ── */
+.top-bar{background:linear-gradient(135deg,#e05090,#9b59b6);color:white;padding:14px 16px;display:flex;align-items:center;gap:12px;border-radius:0 0 22px 22px;margin-bottom:18px;}
+.btn-back{background:rgba(255,255,255,.22);border:none;color:white;border-radius:10px;width:34px;height:34px;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.top-bar-text{flex:1;}
+.top-bar-title{font-size:.92rem;font-weight:700;}
+.top-bar-sub{font-size:.72rem;opacity:.8;}
 
-  .hint-btn { font-size: .8rem; color: #bbb; cursor: pointer; text-decoration: underline; margin-bottom: 8px; display: block; }
+.game-body{padding:0 16px 24px;}
+.game-card{background:white;border-radius:22px;padding:22px 18px 18px;box-shadow:0 4px 20px rgba(224,80,144,.15);text-align:center;}
+.season-badge{display:inline-block;background:linear-gradient(135deg,#ffe0f0,#f0e0ff);color:var(--pink);border-radius:20px;padding:3px 13px;font-size:.74rem;font-weight:700;margin-bottom:14px;}
+.char-img-box{width:170px;height:170px;margin:0 auto 20px;background:#fff5fd;border-radius:20px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.char-img-box img{max-width:100%;max-height:100%;object-fit:contain;}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px;}
+.choice-btn{padding:11px 7px;background:white;border:2px solid #f0c0d8;border-radius:13px;font-size:.88rem;font-weight:700;color:#555;cursor:pointer;transition:all .15s;line-height:1.35;}
+.choice-btn:hover:not(:disabled){border-color:var(--pink);background:var(--pink-bg);color:var(--pink);}
+.choice-btn.correct{border-color:#4caf50!important;background:#e8f5e9!important;color:#2e7d32!important;}
+.choice-btn.wrong{border-color:#f44336!important;background:#fce4ec!important;color:#c62828!important;}
+.choice-btn:disabled{cursor:default;}
+.hint-area{text-align:center;}
+.btn-hint{background:none;border:none;color:#bbb;font-size:.8rem;cursor:pointer;text-decoration:underline;padding:4px;}
+.hint-box{display:none;background:#fff8e1;border:1.5px solid #ffe082;border-radius:10px;padding:7px 14px;font-size:.83rem;color:#e65100;margin-top:7px;font-weight:700;}
+.hint-box.show{display:block;}
 
-  /* 4지선다 */
-  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-  .choice-btn {
-    background: white; border: 2px solid #f0c0d8; border-radius: 12px;
-    padding: 10px; font-size: .92rem; cursor: pointer; transition: all .2s;
-  }
-  .choice-btn:hover { border-color: #e070b0; background: #fff0fb; }
-  .choice-btn.correct-ans { border-color: #4caf50; background: #e8f5e9; color: #2e7d32; }
-  .choice-btn.wrong-ans   { border-color: #e05090; background: #fce4ec; color: #c2185b; }
+/* ── RESULT ── */
+.result-inner{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:36px 16px 24px;text-align:center;}
+.result-emoji{font-size:3.6rem;margin-bottom:10px;animation:pop .45s ease;}
+@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.result-card{background:white;border-radius:22px;padding:22px 18px;width:100%;max-width:340px;box-shadow:0 4px 20px rgba(224,80,144,.15);margin-bottom:18px;}
+.result-img{width:130px;height:130px;object-fit:contain;margin-bottom:12px;}
+.result-name{font-size:1.35rem;font-weight:900;color:#333;margin-bottom:3px;}
+.result-season{font-size:.78rem;color:#aaa;margin-bottom:12px;}
+.result-msg{font-size:.88rem;font-weight:700;padding:8px 16px;border-radius:10px;}
+.result-msg.ok{background:#e8f5e9;color:#2e7d32;}
+.result-msg.ng{background:#fce4ec;color:#c62828;}
+.result-btns{display:flex;flex-direction:column;gap:9px;width:100%;max-width:340px;}
+.btn-dex-go{padding:13px;background:linear-gradient(135deg,var(--pink),var(--purple));color:white;border:none;border-radius:14px;font-size:.95rem;font-weight:700;cursor:pointer;}
+.btn-home{padding:11px;background:white;color:var(--pink);border:2px solid var(--pink-light);border-radius:14px;font-size:.88rem;font-weight:700;cursor:pointer;}
 
-  .feedback { font-size: 1.05rem; font-weight: bold; min-height: 26px; margin-bottom: 10px; }
-  .feedback.correct { color: #4caf50; }
-  .feedback.wrong   { color: #e05090; }
+/* ── DEX ── */
+.dex-body{padding:0 14px 24px;flex:1;overflow-y:auto;}
+.dex-tabs{display:flex;gap:6px;overflow-x:auto;padding:0 14px 12px;scrollbar-width:none;}
+.dex-tabs::-webkit-scrollbar{display:none;}
+.dex-tab{flex-shrink:0;padding:6px 13px;border:2px solid var(--pink-light);border-radius:20px;background:white;color:#aaa;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .15s;}
+.dex-tab.active{background:linear-gradient(135deg,var(--pink),var(--purple));border-color:transparent;color:white;}
+.dex-section{margin-bottom:8px;}
+.dex-section-label{font-size:.75rem;font-weight:700;color:#bbb;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.dex-section-count{color:var(--pink);}
+.dex-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.dex-cell{background:white;border-radius:14px;padding:9px 5px 7px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.dex-cell.got{border:2px solid #fce4ec;}
+.dex-cell.locked{border:2px solid #eee;opacity:.65;}
+.dex-cell img{width:66px;height:66px;object-fit:contain;margin-bottom:4px;display:block;margin-left:auto;margin-right:auto;}
+.dex-cell.locked img{filter:brightness(0) opacity(.35);}
+.dex-cell-name{font-size:.68rem;font-weight:700;color:#555;line-height:1.3;word-break:keep-all;}
+.dex-cell.locked .dex-cell-name{color:#ccc;}
+.dex-sep{margin-bottom:16px;}
 
-  .btn-skip {
-    background: none; border: 2px solid #ddd; color: #bbb;
-    border-radius: 11px; padding: 7px 14px; font-size: .83rem; cursor: pointer; transition: all .2s;
-  }
-  .btn-skip:hover { border-color: #e070b0; color: #e070b0; }
-
-  #result-screen { display: none; flex-direction: column; align-items: center; gap: 10px; }
-  #result-screen.show { display: flex; }
-  .result-emoji { font-size: 3rem; }
-  .result-title { font-size: 1.4rem; font-weight: bold; color: #e05090; }
-  .result-score { font-size: 1rem; color: #888; }
-  .btn-restart {
-    background: #e070b0; color: white; border: none; border-radius: 14px;
-    padding: 11px 26px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 6px;
-  }
-  .game-area { width: 100%; max-width: 420px; }
+/* Season sections in 전체 tab */
+.season-group{margin-bottom:20px;}
+.season-group-title{font-size:.82rem;font-weight:700;color:#888;background:linear-gradient(135deg,#ffe8f5,#f0e0ff);border-radius:10px;padding:5px 12px;margin-bottom:8px;display:flex;justify-content:space-between;}
+.season-group-count{color:var(--pink);}
 </style>
 </head>
 <body>
-<h1>💕 티니핑 이름 맞추기</h1>
-<p class="subtitle">이미지를 보고 티니핑 이름을 맞춰보세요! (총 164마리)</p>
+<div class="app">
 
-<div class="controls">
-  <button class="filter-btn active" onclick="setFilter('all')">전체</button>
-  <button class="filter-btn" onclick="setFilter('1기')">1기</button>
-  <button class="filter-btn" onclick="setFilter('2기')">2기</button>
-  <button class="filter-btn" onclick="setFilter('3기')">3기</button>
-  <button class="filter-btn" onclick="setFilter('4기')">4기</button>
-  <button class="filter-btn" onclick="setFilter('5기')">5기</button>
-  <button class="filter-btn" onclick="setFilter('6기')">6기</button>
-  <button class="filter-btn" onclick="setFilter('극장판')">극장판</button>
-</div>
+<!-- ════════ HOME ════════ -->
+<div id="s-home" class="screen active">
+  <div class="home-header">
+    <h1>💕 티니핑 도감</h1>
+    <p>매일 새로운 티니핑을 만나보세요</p>
+  </div>
+  <div class="home-body">
+    <div class="daily-card">
+      <div class="daily-label">🌟 오늘의 티니핑</div>
+      <div class="daily-img-wrap"><img id="h-img" src="" alt=""></div>
+      <div class="daily-char-name" id="h-name">???</div>
+      <div class="daily-char-season" id="h-season"></div>
+      <div id="h-played-area"></div>
+      <button class="btn-primary" id="h-play-btn" onclick="startGame()">🎮 이름 맞추기 시작!</button>
+    </div>
 
-<div class="mode-toggle">
-  <button class="mode-btn active" onclick="setMode('input')">✏️ 직접 입력</button>
-  <button class="mode-btn" onclick="setMode('choice')">🔤 4지선다</button>
-</div>
-
-<div class="scoreboard">
-  <div class="score-box"><div class="score-label">점수</div><div class="score-val" id="score">0</div></div>
-  <div class="score-box"><div class="score-label">정답</div><div class="score-val" id="correct">0</div></div>
-  <div class="score-box"><div class="score-label">오답</div><div class="score-val" id="wrong">0</div></div>
-</div>
-
-<div class="game-area">
-  <div class="card" id="game-card">
-    <div class="season-badge" id="season-badge">1기</div>
-    <div class="img-wrap"><img id="char-img" src="" alt="티니핑"></div>
-    <div class="progress" id="progress"></div>
-
-    <div id="input-mode">
-      <div class="input-row">
-        <input type="text" id="answer-input" placeholder="이름 입력 (예: 하츄핑)"
-          autocomplete="off" onkeydown="if(event.key==='Enter') checkAnswer()">
-        <button class="btn-submit" onclick="checkAnswer()">확인</button>
+    <div class="dex-card">
+      <div class="dex-card-top">
+        <span class="dex-card-title">📖 내 티니핑 도감</span>
+        <span class="dex-card-count" id="h-dex-count">0 / 164</span>
       </div>
-      <span class="hint-btn" onclick="showHint()" id="hint-btn">💡 힌트 (첫 글자)</span>
+      <div class="prog-bg"><div class="prog-fill" id="h-prog" style="width:0%"></div></div>
+      <button class="btn-outline" onclick="showDex()">도감 보러가기 →</button>
     </div>
-
-    <div id="choice-mode" style="display:none">
-      <div class="choices" id="choices"></div>
-    </div>
-
-    <div class="feedback" id="feedback"></div>
-    <button class="btn-skip" onclick="skip()">건너뛰기</button>
-  </div>
-
-  <div id="result-screen">
-    <div class="result-emoji" id="result-emoji">🎉</div>
-    <div class="result-title" id="result-title">완료!</div>
-    <div class="result-score" id="result-score"></div>
-    <button class="btn-restart" onclick="restart()">다시 하기</button>
   </div>
 </div>
 
+<!-- ════════ GAME ════════ -->
+<div id="s-game" class="screen">
+  <div class="top-bar">
+    <button class="btn-back" onclick="goHome()">←</button>
+    <div class="top-bar-text">
+      <div class="top-bar-title">오늘의 티니핑</div>
+      <div class="top-bar-sub">이름을 맞춰보세요!</div>
+    </div>
+  </div>
+  <div class="game-body">
+    <div class="game-card">
+      <div class="season-badge" id="g-badge"></div>
+      <div class="char-img-box"><img id="g-img" src="" alt=""></div>
+      <div class="choices" id="g-choices"></div>
+      <div class="hint-area">
+        <button class="btn-hint" id="g-hint-btn" onclick="showHint()">💡 힌트 보기 (첫 글자)</button>
+        <div class="hint-box" id="g-hint-box"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ RESULT ════════ -->
+<div id="s-result" class="screen">
+  <div class="result-inner">
+    <div class="result-emoji" id="r-emoji">🎉</div>
+    <div class="result-card">
+      <img class="result-img" id="r-img" src="" alt="">
+      <div class="result-name" id="r-name"></div>
+      <div class="result-season" id="r-season"></div>
+      <div class="result-msg" id="r-msg"></div>
+    </div>
+    <div class="result-btns">
+      <button class="btn-dex-go" onclick="showDex()">📖 도감 보기</button>
+      <button class="btn-home" onclick="goHome()">메인으로 돌아가기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ DEX ════════ -->
+<div id="s-dex" class="screen">
+  <div class="top-bar">
+    <button class="btn-back" onclick="goHome()">←</button>
+    <div class="top-bar-text">
+      <div class="top-bar-title">티니핑 도감</div>
+      <div class="top-bar-sub" id="d-header-count"></div>
+    </div>
+  </div>
+  <div class="dex-tabs" id="d-tabs"></div>
+  <div class="dex-body" id="d-body"></div>
+</div>
+
+</div><!-- .app -->
 <script>
-const ALL_DATA = [{"name":"하츄핑","season":"1기","src":"https://i.namu.wiki/i/LD0IophJCUXd88A8qxgFTFjEX3cR2Fbe8GBpNJSH7kHFjD_MkHWvomxjFSR2D3u1G6t55ISqq4_g2uuNtT4AOa4uPnWN1zKGPwtN5r7lR_BfZgtkot1ZaKhEg8Ny7sVLt1XbOZpObJCRpFdvQF5Waw.webp","local":"images/하츄핑.webp"},{"name":"바로핑","season":"1기","src":"https://i.namu.wiki/i/xzfFbwQq7m7bcF6de8FIBJ3UEk1n4W3yobOMMiBZKZ5oXiGEbgqSKyQbDiy96NXPdQWr7N7wrcrJWvOG-xvlk52Q0HpacYZhiCIqwBnwaDzf3bLbZXfHrlSRb9QchAHAr9KmTLx1l3jzH2armKLa-w.webp","local":"images/바로핑.webp"},{"name":"아자핑","season":"1기","src":"https://i.namu.wiki/i/AbrnVR2Hnz6mW-2jTO7_ug4uwlE2IB5FPbiWAJvEEhdN6Nnec-mYZo41V61yzFzd6yyffd5uraJmKNzemWcXFA91ojvF1qnbms5Y7vXHdYwTc5a4oBREjNTIKX41tNyrVS-bAKAaKAbW5gIyky4lrg.webp","local":"images/아자핑.webp"},{"name":"차차핑","season":"1기","src":"https://i.namu.wiki/i/2J91ifLn46iwVc2ettahHrthOs1lLSQgejfkvSEGFwHmH5AxYKViNW94D7krdM1LmI_SsiL8MFGYMHZ4I8-ElNVS2IVqGFlF0m5KT8buKOYPwh6lqxfBnKf8WJO30owZGYueM80FuiNFgpc4Gkdrgg.webp","local":"images/차차핑.webp"},{"name":"라라핑","season":"1기","src":"https://i.namu.wiki/i/-wbhYahI2knmkI_f8FpYgF-y6BtkLnbFhhZEDuceec39D4gjz2ARFSOBp7RaTjUB4AtcpqBDowip4kdrP7Zo7m9RI0OUrFOKohewRGiit8_akLYAIkLkDYtB-8dxmtiUHMfsDgOS5MksvCVMehsrEw.webp","local":"images/라라핑.webp"},{"name":"해핑","season":"1기","src":"https://i.namu.wiki/i/bKKgViZ2TqMIt_tcgkK7lkkdbU50IG41M-MhVqEaVY_LIi7PbQyVdlit5qZYOVu5Ct4UfoMNPDA2xetOlbBEVurS-wRVOQeuPxYsk8dTFuIDDXf8YO34yf1puLDu16FjmUUf21dhCdcZoJCxhPZRGw.webp","local":"images/해핑.webp"},{"name":"키키핑","season":"1기","src":"https://i.namu.wiki/i/-Xjyx9Sj8URaM_WMuaHyO0Mz2bMwkoWOe--2R2KcqmDsAGv34_VfwLfT8UOuqOskKZfGpM2ZYgbRLupj0yr6VfRAeT9Jz7yL9mUhnX2k0-M4lEzZInpMPncr-Js3ZVporRC7eQIHURSSfMFEXvizHg.webp","local":"images/키키핑.webp"},{"name":"아잉핑","season":"1기","src":"https://i.namu.wiki/i/ztguEfQ373pQmoM0Idhpli8GyzbS6wtWN4wqB__EpxXxxjKr5NSz57VvpXeUENLs9LYGSunj4U9reoelH9qji-nmBYZmjqPLLsSJqoml2cfSpLXyEvBpe6NG-s6WH4yE73J62XP-YfDJGCEoq9POLg.webp","local":"images/아잉핑.webp"},{"name":"부끄핑","season":"1기","src":"https://i.namu.wiki/i/rl7ngYquN8C5lvuu-k9NlgaN6d9CabaKXbB4jwNfu8OffX4QlRuTwg2dNBl98a4yKX-O12-e333_IjmoWBkPkY0WZ9CMdN_5Pc-NE6YAwytGVP0L374OY_T7vWrpSheJQ7jpCxx50FctLVvHm85Pbg.webp","local":"images/부끄핑.webp"},{"name":"부투핑","season":"1기","src":"https://i.namu.wiki/i/zXcUH_FdIuLfA8ZX_T2fLgc1LGmSoz_pjc4C8E-q3sHASCofIM-WiHu1v-ZLpMdu2oG_FipO4aFBPnnvsdC8GIbtYi4Oybwepm72cog0L6G3VM4T_VyI8izWzB2Qmt0UNdDMgGRsQIHUnHBEvURuwQ.webp","local":"images/부투핑.webp"},{"name":"깜빡핑","season":"1기","src":"https://i.namu.wiki/i/H_j4vIGiwL2UZL4Y4zP2kwu60-s8yuNiAVJnPfUNSW2BVPjXHbL8x236T9rNWavDB83t7RW6kjbABSbYqXeTh2bEfNPJ6Mb3djWEgu0I28tlP9flLmXHMlGzBTVLZzC51Y4Se5_w8T6khXe3nhP_Wg.webp","local":"images/깜빡핑.webp"},{"name":"띠용핑","season":"1기","src":"https://i.namu.wiki/i/azx44JCbqX3Of_7CgFnjLSw2rxGW4Gt0GJhBTxOlyuQlpOvPf7fAobqL4_jgFrD4XXS6v31PpiUU_YQRyx5v0_ZGphgSq2-TV5kGm50Rk8-7evhhx41vw_lY-R-caFKrHFkoE8lHhWWppKbnUpH24w.webp","local":"images/띠용핑.webp"},{"name":"주르핑","season":"1기","src":"https://i.namu.wiki/i/m2J0HtqUyVfcPJpWIYQkFJxairmh9Ier40_50SRF6Sr-Rv-Xq6Os_csjF4J8V1lUtE2qOmThLJNBp840YPqp_V967bE9yvfD9V8det8rMsds31hY5HGb3sZhJSsuhXVKVFxqRamg3b7GzGTUG43lpw.webp","local":"images/주르핑.webp"},{"name":"차나핑","season":"1기","src":"https://i.namu.wiki/i/tU8XYK4f1Qq1KSLp0kEj5UxOov02dCNjFc1myOjTIffGmjHM6G64fgd3uqIM93enxKx-Ba9qNYPU_cCSEh8NjeGwp7fcK8RC_blYN9VzxBCR5oRd_Ots4cSKDGQ_8hS70G87a1xid2gbVsGnnT7ZVg.webp","local":"images/차나핑.webp"},{"name":"따라핑","season":"1기","src":"https://i.namu.wiki/i/1k3ZXvaFSI3YEX2FYSNbJalBR69VzynCHpE9f1Cl4i3zjnBM9lbdK47hktGPH8BUoRiZBjniQxnxvzmy7qM-25FpHMqTTGVNCy1sMlP2UBYA7b09MD8PonNBU-T6-vi8OFGTz2hiFMJ5KgSJIRQnBQ.webp","local":"images/따라핑.webp"},{"name":"나르핑","season":"1기","src":"https://i.namu.wiki/i/knwzq-cR28Numz-Sr0dAYlZbUnYSqCrEjI3iSKkk0uFKx8H5hZrVnpU9PzdJKB91UVGYn-mK5FeEsA-pUwMn_uJ7v24P3pKtXuDmWrfHDsLRWhjXT50lYZKCQ-7_dIVvqvQVkDhXeN-DbBBQ2D24Fg.webp","local":"images/나르핑.webp"},{"name":"무셔핑","season":"1기","src":"https://i.namu.wiki/i/OkiW7bBDqTb8_gCMplExNL53SUN_p6NqpuyOBEQtbdWUQ6KkqQWNcom4N5Ne7ujLYbUMAFxxRDfdSRfVLmyNd37d99ja12Nc-4FJJPXKvQHOazWploso1F8PGCZnAWilAe61sX9Pq9JqCp_mwzWKnQ.webp","local":"images/무셔핑.webp"},{"name":"투투핑","season":"1기","src":"https://i.namu.wiki/i/w3at_Fe64_BVoQv-ilVPdrXVUHigzW2cG6da3YBI7WndygZ3nbWc20SMqR5XbkhasKae7shAuf3HFS8H7mLzWq6_1IeU6bet1EU_aX7OjGaYrK_yH4mgf3YDv_XmGk0si0aLwCcj3GbqgXbRXP-4aQ.webp","local":"images/투투핑.webp"},{"name":"차캐핑","season":"1기","src":"https://i.namu.wiki/i/DxttQTJ_wH78lTBFwxFfOWMQ_Tqo_TcPqOgMKwwj3AgX1Rv1vccynxZuBib5GgfkDueAbEJfxuuJMKIwhPGGhr3gBJZxnHYS3n1WUyBTbc29HZQok0h8rZFWUefHKarmeLs10-a8RIi6aIukJIexiQ.webp","local":"images/차캐핑.webp"},{"name":"떠벌핑","season":"1기","src":"https://i.namu.wiki/i/EMsaifU3KdKlbFFniFdbUCs0uzzyTzDcGpFWWaKjLkfUphh6FvOdTfb1eqz6PufNNkmQfU6uz67YzefNrA1o3W2WEE3bD2vfnxFGDXdgddUbNll9woOtnTC_CC4hEOfRfDSxYi81x2Nmas3f3BRuGg.webp","local":"images/떠벌핑.webp"},{"name":"다조핑","season":"1기","src":"https://i.namu.wiki/i/0fRsIovuWQ9q7RZEjqLoakqLfZnNSy6Hk4Teggi7ht2Y_Wn5UZwPSgohPnSYKB9kZYP2kZsueqVzjBRpDz5py28zPkZHzoHrYXtrn63MYDrASZqzEQbD-rc6RKlO8NXuBRXqEs4eBNU3SS1fM-sZOQ.webp","local":"images/다조핑.webp"},{"name":"화나핑","season":"1기","src":"https://i.namu.wiki/i/k79mvLhhjOYCJC1DGSBUMyOPzWNPXqId0ZZAp1csFXayNCWnKhiSU27Y463ftOmKFsbEE0iVarvPKL6oTV-wPMLR4wiPSgMyqTHJoZeexM0QEUmjYgp3A5ixcaiVt1pZ021bngqNbfuOVtbDdxDVqw.webp","local":"images/화나핑.webp"},{"name":"시러핑","season":"1기","src":"https://i.namu.wiki/i/Khb5_pEii0Kcr1MxxBubVgAfmMpdf7ceFNemGEeb4P5r8laQ8rDJxXHXStBzUQIZqqes5TyrMsGNdLYwpyRZiTJg3sCuIGqiBaFEqeoC-0kf8i4evmjBy7BO2eC6RE6EXMg_5pz-MlX7GtmxcAt-Xg.webp","local":"images/시러핑.webp"},{"name":"바네핑","season":"1기","src":"https://i.namu.wiki/i/kdnBcVBZ4pFWBl89VaVb8PTGPYL9AKScVe3DHgiEVzd6rUy2lVA6QSeP0_cwDPWyrm6j1bmDPoI-kElSB_tX2aX5VsTLnPcM9RqepyAqpCq90GSr4hFAB_FaTZ0D27f_O8aBNSWtU3IsjjYtrvbRAA.webp","local":"images/바네핑.webp"},{"name":"악동핑","season":"1기","src":"https://i.namu.wiki/i/DuGsNAtfJFL6ZHh2XtOy7bkGeCWaucwtx_SJDa-jNOCP9-UCwfUn5b0uJjrTda5QzZLxA414d5gy6iJlnaRnJz2zpmwLb_e8MLSy8bHXvDedgyTmWUmJGxX6CKGT3ob5knUsXSqPqxbnkOD7WbKt_A.webp","local":"images/악동핑.webp"},{"name":"덜덜핑","season":"1기","src":"https://i.namu.wiki/i/GooJ6EcXO9cxRxzG1sGNdsnGu59iczAREuT_k-CXuomby-PvGn5Rc-zA_usVo7cSS2Jq93kBISZYViR-V0h5-t8LsCdVsPlUf1ldkLiDdeeYuihdUSMWk9nTHxKVH3NzELXkvULO08-4z3-7fS092w.webp","local":"images/덜덜핑.webp"},{"name":"그림핑","season":"1기","src":"https://i.namu.wiki/i/tvsfdMrTMtQaRIQ-YgO9dnyU5sWQzGebF1Ok2C_gnn81KZeEBEnVBE2Xi8igknL9LvqB0m0Rv5Cj2CJTKuNMtmCv_58Wuu0zUVr6xZBRzu7kKZnpys0_OX8GnSMG4oaFAWICMTn30vU2oVLbDPf_Yw.webp","local":"images/그림핑.webp"},{"name":"무거핑","season":"1기","src":"https://i.namu.wiki/i/PlKoqFCHcxy434aysQe9RxK902mPqDVfG3E8xZ5-13xmkBwAyTJOgL8EfkhpL-bP0HWVBY9aHoRqK6jzMZIT2THNyiWSjrdoPF0IyxRyxttNhXsDYEBB3BnnQA3ptfxVkeWbADJnQlXk_zfk3oV8ng.webp","local":"images/무거핑.webp"},{"name":"꺼꿀핑","season":"1기","src":"https://i.namu.wiki/i/StKv1URX4x_QYFYwGUeZgFaKIufiQA5DiXbuS-fAdjv54s3OIQi_8Fi0yqoD_ZnLfSgPUX_PfAQc48038SLPvNGmW8Om_rDicKdqfuTuwiajZ6o3pX-Lw6m54WECTM-LPKshBb7BOEK2OBIU2I0mFQ.webp","local":"images/꺼꿀핑.webp"},{"name":"씽씽핑","season":"1기","src":"https://i.namu.wiki/i/cahpJ8-LzDtnbzi7B26oNh4IXmHMm1v8xkdSYtM2U2rMfdZz4cZxae2gF4_rzU75C-fu_6YZgd-8yoNhN0h0WpcZBqpu6yo1G7bATDYfDIwwrg-h_SvESrubC-jLzJiI2nYjk8NZe-vAptqvK_YXcA.webp","local":"images/씽씽핑.webp"},{"name":"베베핑","season":"1기","src":"https://i.namu.wiki/i/yBFTrT7Di23kXL6aB5cX4jLleRsIxQtRhUjyGsXrc7QLkpwEH_hXxvzxzzHZW2JobI2DNTv_8OxJ0iuMpT4tUt44HmGgoD_dwlN9b019ZHSM80xHsMZzTF-hM40NM2smLAlCFPnqwT10PqupnAnriQ.webp","local":"images/베베핑.webp"},{"name":"코자핑","season":"1기","src":"https://i.namu.wiki/i/i1iEs9OXoMh3NBo7MHj8XwKb_cl6t438D0eq9gdk-rkPvZ1ULolHuJBBS9CFFr954tdonaX_zcxJdCODTSLKaYIdGzojEi_AZgIsZmNacT-Q7DvNtPQ7VAVb9N1EbBrq0ZuB_tlzdPaWSbyO5XipLQ.webp","local":"images/코자핑.webp"},{"name":"딱풀핑","season":"1기","src":"https://i.namu.wiki/i/0kcvvOAw4wN0ZNtiNqZ-A23aaTWFJB3IT-1jZ5GPdNmIJW3N4JPX52sQ9mmM3F8zBXm2SH6L3aztXh937_vtbTkUlHXwVaBGUrKVIbrldzGPwo2T7FHACV56vRn5911zkoISr6lNDdFMNR2-a1c_9A.webp","local":"images/딱풀핑.webp"},{"name":"모야핑","season":"1기","src":"https://i.namu.wiki/i/TsizITr0peUB6RwFnyen6RGSIB3sAyTNGti6RLc17F_DyusXo0nl7X9iDeiIcbTfXuAFYYJwW0sOSExO8r4b7o3p74rFkoRwZ48i6UyfO6KF86t1IPfiwvbQo-7XmYUD0FgIKamd90wfGJzIQjWhWQ.webp","local":"images/모야핑.webp"},{"name":"토이핑","season":"1기","src":"https://i.namu.wiki/i/yqbJgPvNS32BJGa-EoBKTJWnBcrDve1M7aeUJaiQ8xcfwz9gVDi0OO9dbE5Od7m6AsuhGWP_36l5MMM8U0FAyEU8c2Mq2Py2-Xz86H6bQkBplZmumYylm9czskX98ozGXrR75xK7WqOLGXIAvtpE7g.webp","local":"images/토이핑.webp"},{"name":"또까핑","season":"1기","src":"https://i.namu.wiki/i/9t-F6SpWaMguk_-OlSAldLSJjapUYiB0UZ6uE0XXYKHAbEs-bbASeqOMzH3Au2FQg-jirJHnMeVw6kk1sTOsLZRC4MeS-AH_T9tjeFgEyXrcGXcvBSBJHGhZfcIqQu_F-4xJgbFEQ3XBkY7xCUjNQA.webp","local":"images/또까핑.webp"},{"name":"플라핑","season":"1기","src":"https://i.namu.wiki/i/2anXp5u9dNOi0AK3LlbFDXVe_ZWzqE3ugIfGbnsuYb3-5cg4T_1ocq6l-CIBej_rCa_FV2L2RP2jpBOzvk049scjR5l4FlgQFPn0SVyFZH-rmMKl0Ip72XkRHA1kNUKjPVYJnCuesriqvo1kdn6pXw.webp","local":"images/플라핑.webp"},{"name":"노라핑&노리핑","season":"1기","src":"https://i.namu.wiki/i/ByoYcgvCDWofquXe5FI2WTUnzGlAPqnbNmLVSTnDdYAwQX1ssaGsXPkH9eFNsZpo1bUriZ60rcnQxJYiRXRrGAkRDW1i-46pNupgos4ITCNwtUoVSFje1Yt-iogQReNW5IAor52mmcqx81hhe4VttQ.webp","local":"images/노라핑&노리핑.webp"},{"name":"아휴핑","season":"1기","src":"https://i.namu.wiki/i/NDvq_W9D6VyJqKbFxc-GfYNO1RovHZZ4R7QZxwBsRTS0b71dOdDxp2lQ_49JtEjc4eVmO326ehEm0mE5pO-Ugv3HuM_zlxkSurSpJuEVn7kj1wbS-RKTwVGzKa2yDj1cnrHTnDDNnFmuViPWoQZ1yg.webp","local":"images/아휴핑.webp"},{"name":"똑똑핑","season":"1기","src":"https://i.namu.wiki/i/9IwurxWNZpirmURKdMAQhRmAklODIY3EmYaxU5B9QIvwyOTK3bn-8HGjs6eMlIhYs7A2qQkgP77ElypdZQaiLJvLAkmEqsGAFKpfQMdPqld2BKDT794YMBWkS17irCDXAgywMpjNYiwPhGIU4hEJpw.webp","local":"images/똑똑핑.webp"},{"name":"꽁꽁핑","season":"1기","src":"https://i.namu.wiki/i/E___DmukpXySuHoxT1fwoefcYlBehVdA_gqS2oeooja-9PS-F6vuZfS5JUjJQ5FoqkZhbTKu3mKWksI7M_5qCJ7TgGkJ3TlWfUSbTHkVCE4yGQrobHOhfiM5VTAlh3tDX1WXOO9GEstdRwGUCF8tlQ.webp","local":"images/꽁꽁핑.webp"},{"name":"찌릿핑","season":"1기","src":"https://i.namu.wiki/i/sq6PsyAe8vvm86mSj76Iw-K27oqQwZt02oDYfl4qxGeJTTxuCJNiwu4t4L1OgbnTDatrYsaEjPdwCgHzDrKWKegBSXOl7zS3RvLvX3wCguyQZKxWLitHEtFfWrsKggBYvcPXtvgrTusMUCBrGYnn_Q.webp","local":"images/찌릿핑.webp"},{"name":"홀로핑","season":"1기","src":"https://i.namu.wiki/i/8K71pWABIa0o1amEYxwOiXJ8ZU4Yfap0djHBGeaEdlwZrsGQlXOxK_-UiADxUWc5pKVOLi0CosQO90Gcm3t2eMENSjFUvdWjQuzMBhOTRD2wN64fXdOaWFaHADa2laZqYA9cOhLK6CWAM8NNgIbfPw.webp","local":"images/홀로핑.webp"},{"name":"앙대핑","season":"1기","src":"https://i.namu.wiki/i/R_OGztWbv1KnWonjDlCqfwn-NDmoqz-K7GYicB48uqG72Qz0idoXaERa5oJHx9G2ERUArDk2-bFuZB-Q9TLh3vvry8B7wH9mLWaEWocttx5SB1xdYnx09xT-wyWAejn1MSEvs4vS5lK2lriIgsJseg.webp","local":"images/앙대핑.webp"},{"name":"다이아 하츄핑","season":"2기","src":"https://i.namu.wiki/i/evy7cgpIP61bN7kqtvEP-asC3suqN3dYa3NTbc30A1ShQVnlN9s39Yc3OCnTt_4BTjwoSCK6rlWm2JRbgR53O5tmEpSpqC_bnVxrc0Cce7wsQzSaKAVxiHn4DeS-D7zd8P9oix2LiQo-lDQkr16oIA.webp","local":"images/다이아 하츄핑.webp"},{"name":"조아핑","season":"2기","src":"https://i.namu.wiki/i/qiWn2YMvEfM5JLmmbkPr7GgrcX1XEZnoQAWQjIVVdOlvgn47R4LU5m4U0kbAMSRB72NKmtRVVlodd3tSDNY1s1FC8zjeauS9b7OE4JBaG2ttYgO0bnvCfrBqLQVepdBruLWvLTU0N7kZ7Ov7sC-l_g.webp","local":"images/조아핑.webp"},{"name":"방글핑","season":"2기","src":"https://i.namu.wiki/i/ysaMqON1qOxwjcrwXUAuePNfiRWZ3ecBj1Dy192giljMAAUqc7RBn-81c3sMKJ1n7VC9P9u2mbiMz-V8RFIuHe1VJfAVH5OP-UkaApy_vFtKsm5wCYR1m8pGl4qsrIpPcNoZ6EEKqO2yvQuenWoNdw.webp","local":"images/방글핑.webp"},{"name":"믿어핑","season":"2기","src":"https://i.namu.wiki/i/_jAJyPbcBig0qJrvZxDZWg8_bl0mH4CGvEkfU5egZ0afmom0ogmN-myAIjLWo2G_toZiqqFR4H9n9KJc2kqLaqFT8ov6_5D0C9-Qrpr9gMsDVktLNY0iOz18F0M3RUnhNPH3XNMOuMFp9OqPO2y_-w.webp","local":"images/믿어핑.webp"},{"name":"까르핑","season":"2기","src":"https://i.namu.wiki/i/5wzRb86_gn6ZvGBsdyrrzSw1N1zxDgCeXc0J5MOrF-otm80bHnauVDmEYQk35IyYk1lfIuwGWXTliQz03UlNEwW2HgVAdoz4vQQdf2Fgg-RkoiMW7kL0L--47LygectcdtjngoE9r99VvhS25T-35A.webp","local":"images/까르핑.webp"},{"name":"아야핑","season":"2기","src":"https://i.namu.wiki/i/jElUL8UEKfIR0f0W9iP9rfMdG62jskgIlyGT7Q0XH4x2x2fzIfgLmdPwj_wI2DNvlAKVBFLYiXNjFrZMwrsoKAjMg20H3T2QlZVritaeDntyRZienVAEpg57HUOMLAPdHhYTqFtVqj_BHLWERRtgZA.webp","local":"images/아야핑.webp"},{"name":"소원핑","season":"2기","src":"https://i.namu.wiki/i/XsuGVRuz4cW--9R_9EzjIZVmJHeS1Wr2oxVpCFSJeoHlIIu--xnCH5vKN9c-e2HZJix0rlpOj0PRRU_4N3JKIR-kNmEtOM2WcDcgGtpJDa6nDIYdi-dYOnL2YAC2a-u32CG8x1IunNnnEJFM-qH6ug.webp","local":"images/소원핑.webp"},{"name":"토닥핑","season":"2기","src":"https://i.namu.wiki/i/-57IsH3ZyGfiDO7Fow1ka_cX49f8Ac-BihZgnooHmWfQOkGWlz3Xfalm_AGfzdbjy06mG7J8F9gX_kmP7Ir3Btm55HAOZdbrfgt9_cXeDG1LUt3vVE_xo1fb_svFBMIwp5lfG8oeRtAHps943gYsbw.webp","local":"images/토닥핑.webp"},{"name":"쪼꼼핑","season":"2기","src":"https://i.namu.wiki/i/0PTmhqiSFowouRQfkGYEuw1aFsRw-wEMGwUaBi13IfgSDA-5ymoXEh45jxM4Bwlmxu8-9Pscl-D9zSb__ADt3Kyzsg97QlSehCg3kixkpbqVsFf1p45o3C5qphfF18IHhhRPL8ptwFvm8taL1SaBHw.webp","local":"images/쪼꼼핑.webp"},{"name":"싹싹핑","season":"2기","src":"https://i.namu.wiki/i/NFYSn6j6q0sPqzQlZBw0YPJFeZ6RoQ8dl95PWjCJX14WCbexbMsxPs3bhGOxvYsfI8cPu6KgJdLHcIEUYmXLLU8KxjVM76-qEwZVYx2daxAWayZmyTusls_NUi5NcqRLf70fkjzfhBmZWb1y-MwQ9A.webp","local":"images/싹싹핑.webp"},{"name":"맛나핑","season":"2기","src":"https://i.namu.wiki/i/_6l9lkqTL06UqmSkPPtKLBeDRf8Dxt3WXBfdYReZpByMfqmdKgxcNvjXzPLP1Yi64mOIwHbyZT7ZGpaQgF2MAl41978cztLRCaLMprVvrZtBpeqiGFRNNA_wvxux5B0Bi3jLpDUidY8NHYUMVzV4XA.webp","local":"images/맛나핑.webp"},{"name":"포근핑","season":"2기","src":"https://i.namu.wiki/i/Z4F2_kNhlMvEJlkwgObU_YnXpcVkUDpgiSutLnSN8OxXk3wlvbhDRr3d79w_xj5qz6StiBJIgaUtyjBEvkeRRPr1rQtffNv7j5Alh34Lxg1f51MFZr1_3WeKzQrT7oJustNdg8nCkFlZpq6VPx53nQ.webp","local":"images/포근핑.webp"},{"name":"메모핑","season":"2기","src":"https://i.namu.wiki/i/cIXJ9OAccWpdJGQXFdrfpBh3Df7yMv_wEYEl4Cndg65r1dYzAPRboaHyzdjL47-hsis2MfH59bXZq2C_c5v4ufqJfG8g_7g-zWL1JFDyhhMrrWKdbVxnGOoxduEXEVdkltw-mEyUsgRnjT9yrIE9tw.webp","local":"images/메모핑.webp"},{"name":"다해핑","season":"2기","src":"https://i.namu.wiki/i/_GWLYDg0FjSdEI0dskWPnRcSysRSJOaf-kmmMLIL0fJH_h_cuVOjFO4JZ8Fdkli4pEX44zKxLdE9633O7NYHY6lqZGhd6DDa48N-QSP1kVu8q945e0swx3aO85LscR_cm62iQ98qgeEoibdP9Kye1g.webp","local":"images/다해핑.webp"},{"name":"공쥬핑","season":"2기","src":"https://i.namu.wiki/i/4TDkk-nGQzD3ceng5OPdz9B64tX5xPsV335HdCJqU_9_ae12S81ZMqiN4WqEMWd6hyQuFr_kfmEIP1EFSb-UrNlNzI9ep0G5qHFB84YJZYY9w80Y29ptc2TMTYmxXqlwEt2FhehDtuiOor2wZm0tkw.webp","local":"images/공쥬핑.webp"},{"name":"짝짝핑","season":"2기","src":"https://i.namu.wiki/i/BccqoyJPpWGgBFbghsv16BTKW-Exrb8Anof4-GX3Qs-ihySX2HQiQ9CsCmy9cPDzhxNN5LnkMB5pYswqmtcpqk1r9quUhK-BeHny_QPd6JpNrwXhPTHFaqWBubqZ-9k_X9__AdP56EGCwsSo-WiGvg.webp","local":"images/짝짝핑.webp"},{"name":"주네핑","season":"2기","src":"https://i.namu.wiki/i/bRN6jgV-VAU7YBANCFJXWlaqlvaEW0M2KV6EHJ7z9wYpoliL31nRLmT9QCNT9-8Kw5PSkq9RnVaS7QGbFSQ7pWUQqDkvhUuOuAoj6y9AvGV__W46R6rrFxW3Vc1aM_Z6dw7hJtxYM6q7xUUVKnyZsg.webp","local":"images/주네핑.webp"},{"name":"뚝딱핑","season":"2기","src":"https://i.namu.wiki/i/GqYLUzZuno0uMSdp6utew_sY46PowgYP0uawrW6FmXi7wkBYG5FkLJsaip8ZuajzYh91lw7FrBYpW1jd_KQXpCEwMbXE9lf-zkykq2eVuZhxsN_Az_oNfyqhHp7IxJQ0K7jFc0EKhyDflBJ-2H9I1A.webp","local":"images/뚝딱핑.webp"},{"name":"발레핑","season":"2기","src":"https://i.namu.wiki/i/BK009dIkeHG0OHmyWgq58nOtE-itzb0MDvmE-LJu4jlqAH0WI36uendevMzlAsOBDXQa_rOW0GmT-qVwrHp66sS5TQWPRAj6hdfpS0Bglqbbw2iMavYWwGDJxjKVwF4SMgbbYdMlznQ8IZfocchbtg.webp","local":"images/발레핑.webp"},{"name":"원더핑","season":"2기","src":"https://i.namu.wiki/i/PhNE9chDXGiAIyiI3-jM1fvN0GbdeH4httwVArZHMggKUOULAzgnH2h_P1xgBue20gYFJCU94z5LBRfQiAmKrHU0ZMUR8_YMky-bT1-hLClYywm1Wy7wFj2nbBDvYwUI8P3H5SpxvDFOagtcEI6JIA.webp","local":"images/원더핑.webp"},{"name":"다해핑","season":"2기","src":"https://i.namu.wiki/i/WRQwsjwVw14C6KWLSQxS8RRApSQKfnKPXSMiP5UODRXO6RvIhxy6CaeEbQ1MLptO6jpTjnUGaWYYwhk2dpHcmW213XYrk3HiiYs7YyzqQtHDb-HRzHUGqVBNwkDUt8PuYtky5ZgU4Z4OmgiNNAnGFw.webp","local":"images/다해핑.webp"},{"name":"플로라 하츄핑","season":"3기","src":"https://i.namu.wiki/i/KsU_nx90oYxo1nXTwf8YgOjY2wCC7xPiUoKxbrSi8y5b0dKhD0eRC-x9yrX888nL2vNAMya5K7OIOy9_8Fw_4EpA3gD-ASbnIdD1axNRbl42Bn46BDNNBtkAnJLpSNTjQvJ7q7p3_9dar8wA0tTQvg.webp","local":"images/플로라 하츄핑.webp"},{"name":"꾸래핑","season":"3기","src":"https://i.namu.wiki/i/EWHv4UlxfdAYDOmF0w4AwTs1UPQLwk_-oX1p3rlXkxWNZ_MeA8sQ4DbRoB4mz7y8eyncXjnvs09jnEwPQrdQwSouU66FXJP-x4wNZjKPBEQWbyutxQKe3viu05vyPfHv-ILvSkpAWOsuItJz1y0kQw.webp","local":"images/꾸래핑.webp"},{"name":"솔찌핑","season":"3기","src":"https://i.namu.wiki/i/Cq3WV8_9gXORFqiJuf38kRPLXB4YFUXBxW0fADJeyfNJUSOJvkC8300pPqmsTYNvBmEkLEQjGO8bwdSwLJQYUGIw6xQdahdGq7juvk2BqXA6z0GuNQcOyYQKYgwY5PNETzX3Kcr8Z7JLX0152BCFKg.webp","local":"images/솔찌핑.webp"},{"name":"나나핑","season":"3기","src":"https://i.namu.wiki/i/q8EuJpmUh-Oqvs_dmAL6TrG-pWg5vSb6h0gRaZBm8in1JlxNMI9y9eD6efP3J98nGJWU-9Za4ju9aRFkZKoB9yDkpKXereMeVzAUmLDQ9DoZLzdP2uivjN4mTnJo7XNoqwzwRq3CPww5JShR1ZUnXA.webp","local":"images/나나핑.webp"},{"name":"행운핑","season":"3기","src":"https://i.namu.wiki/i/GDiKRAHXwGIajUHT974RwcJ0TPTFV3OOQxnt-Fb-lv5wWIL8YRfcR2SAKVvicoO4Epipe-LwWmrtE9W3sV5mQ1bGN3C3Qki5EcjiTYUiwyXK3Xh5ektu37OuaNQ2PnvIkBgUmqrjDJ2g-a6zQVlXYw.webp","local":"images/행운핑.webp"},{"name":"빨리핑","season":"3기","src":"https://i.namu.wiki/i/6C3ch5Tzxr_zKodwhjwb9xgYwolZ-U2-g1qb4TyKOlQcgSlc-GUzsTpChQKJyIJELzPeV8apr2szWGtXUJpkgKLP5MsLZjK0X1ieU3dF66492vzkGNV7EFUlZosLB-ZBIKIXGflMQVt15gSy6gtk6g.webp","local":"images/빨리핑.webp"},{"name":"얌얌핑","season":"3기","src":"https://i.namu.wiki/i/J5JeHKAfpl0KCFvl9g2yrH5jItv-eKZ5vkgiOEN2URpnDJDyH8H9WcNAe0uOWL-XZhd4rWxUDLSjGv3MNg3F3P6GoZA6NtqFVL-7jyA375OrZ57Ag3i7D02LdI4lUgegDY9haK9mcZO1Fy5IASq3vA.webp","local":"images/얌얌핑.webp"},{"name":"뜨거핑","season":"3기","src":"https://i.namu.wiki/i/JofsdzCuRfeAB-8Kwn0EHP3B3P8iLLWLHX1-r-7oQPtVUwti8w8lv03UCcnNeC-8K7ytek2JKsjb6zQ1EBr5HeWa02YmAvl5i0MNx9aPQUhyiEk5sLJhlqNpujtNzzZtHBf9JuIQq6ewMIXY3imlQw.webp","local":"images/뜨거핑.webp"},{"name":"삐뽀핑","season":"3기","src":"https://i.namu.wiki/i/beU73ASB6m7maEU6O0GpVEH6D2f96EruX3eA0NrTV0P8SKo6AFvY_fcSCcTZ2n1-QKKnPaPAH-YXENG6UG-PsrTwX-Ay34HYifu8QUSWowd0_RlDJ8sRlik7-VNQbv4Pgs3NS_v1vAwKMzBnPZQhFg.webp","local":"images/삐뽀핑.webp"},{"name":"간호핑","season":"3기","src":"https://i.namu.wiki/i/ACL_0PE55Dq6AAtVDp6s9tP_-M0hmON20PFo5FsWpDmF7Q6Mi2t1mQVdPv_Dn5UmK-OJYgGWR2FxHGcNaPh-dCKUFzMvt3I3bBwWa9tyQ07d85Hxu_zTmYGP7Qtt9w3gpkEX5-mBI4CRVxnqC3UCFw.webp","local":"images/간호핑.webp"},{"name":"힘내핑","season":"3기","src":"https://i.namu.wiki/i/8RMlpnGoPIkg7LN4afvk7WGKzQQAsuVL9zCAnJyizfNynyLQp6AohCr3g5EazXIkQaasVvUVvx1-z1U1rtf3YpM3r_tOAIkh-MCLLU6MccZChhjXkrVF7NLxtg5C_UvvOpWTkPc1qXrgcx6Mgz4Yyg.webp","local":"images/힘내핑.webp"},{"name":"고쳐핑","season":"3기","src":"https://i.namu.wiki/i/eYzJalyxbkv7LKn2kmCgUq6QA1HCjggF1B2KsA1X5FRMTISt6x8kfRgmafsQUA9y-9QHFO5YW-bzgLRJDR3-A0u_BB-zn9CnGY5wy15XLn6sL-ohfAgMUUpqeaDqBsUIVe5W16PhLMAFldximJ1YHg.webp","local":"images/고쳐핑.webp"},{"name":"아라핑","season":"3기","src":"https://i.namu.wiki/i/PR-3mS6F92CX52pTH_ffyXGZgLJvXohmKEVZYO2WVu1nqQoyVtjkoYBxfw7Nw633XI8LMupRlFAe9YMkBRBKT6YCuw59_wSyHGoWtWlRT4fzL1ahkJvEI-XMRH-vS1gx2zhN-CQ96AG31Wggod9vYA.webp","local":"images/아라핑.webp"},{"name":"패션핑","season":"3기","src":"https://i.namu.wiki/i/ORRa3sMRsB3li7juqavDyZgBFE7CPCRyaOKiErZu9x0kjfOWjytoTNpe_SVl9w1E6yHHy1CYMzei_lj_kO4yfj9rCg9qigD7KpjIsm-vN_fJHEzd9xAz4Xl82JVP3lbLQFvjxLJwyetW8rMCUqiogg.webp","local":"images/패션핑.webp"},{"name":"꼼딱핑","season":"3기","src":"https://i.namu.wiki/i/Dhksw6rvt47Po-6bHPE0CG5DRShMko_0tmYn19PqfCi3E1y7Gsl8WhYhiFEF_lMBRF-r3xOSmtuFAE9dXW-VNVizB_EKK4aHqS-XuIqT8Ck7LLe6ND-yBQQCjrfTqBHqZL4Kbsu1FEwjoJN5K9aqoA.webp","local":"images/꼼딱핑.webp"},{"name":"퐁당핑","season":"3기","src":"https://i.namu.wiki/i/XFAoeedkubdg8vLy1c8MojDxe7seFvAa1EHhXih55JgTO6i7_aii_r00YsJc6kBBWtos6LWNw1aKqMyrlusBjIg0nlH4ofOhPxiQmg1r8Rr8oPXKhRhB8bWkmgu12gs8gtjpnSNu39dRpqKeviodeA.webp","local":"images/퐁당핑.webp"},{"name":"파티핑","season":"3기","src":"https://i.namu.wiki/i/xVaDxFqlSCT2fORWhB7tANJhkx2TAHBzUJ8GIR3d6wbvxsh_vsIVM1-IpB7NRHRaq1ZrGf6evvIX_sODI7PcXmLzFdVT7SBpBOfhwNaMuU7-DgQTYS7xW2_taJJfl9qqrjsTF9qCuy5FxSOagsnN6Q.webp","local":"images/파티핑.webp"},{"name":"꾸며핑","season":"3기","src":"https://i.namu.wiki/i/Kwv4Zu-CS5S-GyfXXzAnKp3l2cT4_An-09hKNnGbu9LCL9fVuzQVU9NN4YtAph_gvjV9GXKJ0zdgHo9TN-Qj59vcD1V2WxZrO2RFtwHbiDA2eA70VKhJKqoFUhm3Hu4NFWYwkcg6Ya5Q0myOUOBBEQ.webp","local":"images/꾸며핑.webp"},{"name":"삐짐핑","season":"3기","src":"https://i.namu.wiki/i/AOrgTY3GDFBFe1RuDCeldmSiZ0lhJCZCd3H4Ao5W1HnB6QG7xYNsGah-bUJZ9RwiYjQeOrP3Oe0tUogvm1ZfDlUsiKtejd_VEDCfgZ-c5kI5nC8nb-rp_gTW9RZfUxXI0BoXEhn16HUB4JPKDYQJtA.webp","local":"images/삐짐핑.webp"},{"name":"아아핑","season":"3기","src":"https://i.namu.wiki/i/HzKsiGL_dbvEi4SSv9H5FRo-Qua2SH5kUrget3DsGyujaoZZbr8yxbf4jSVnD7pzdmzRAQbWwYh-tSCs7MEdXF5z46Ym4Uve5mNh7Lp6nYCNTpvxIdKACXGPcv2GGZ2SXmxhO1h9xpuQCpONsIRxMA.webp","local":"images/아아핑.webp"},{"name":"빙글핑","season":"3기","src":"https://i.namu.wiki/i/U--UFYa4AntFCTxjt_XglD4YX29xUgk6TBxzg2E_SGnWN5gM7DVNwREKA8DkcEcOz_2CVOoVl8cftQTwsL6EImN4xLGm3pxesjEyRoeUpihkUkpeSfH_KBLkpIlm-qqAj8840PgcnBsYoBnvPNEZ1A.webp","local":"images/빙글핑.webp"},{"name":"베리 하츄핑","season":"4기","src":"https://i.namu.wiki/i/KicQl2TltqexK4qZMdKYGdPzIYt8K5C6028_vBre2elpfPHafH9G6i_LwwC8WUF4SEAYaCVCmFKw4CS5rK7oqk6IsQFkiqkhQT6s973sOlErgJQdg685pliQmt2PFGEe4239vDsSaezWM1VIfLu7Fw.webp","local":"images/베리 하츄핑.webp"},{"name":"포실핑","season":"4기","src":"https://i.namu.wiki/i/NAs7whff9YzqNqKL-qR6L42u2VxN-h9olQSW2-mpdQJZwC_wZ7jOpRtj4wJLPbPP-DgcqAaETSWR76DBwS5-dWROQ5LIiG2gv0LAcHIh0oIIF0atH6Rn9iQMoW915a9azOtCmX_Bg1QywZDTalG6lA.webp","local":"images/포실핑.webp"},{"name":"말랑핑","season":"4기","src":"https://i.namu.wiki/i/DxOLEL20Sa4f_OJzZA2wkH6RVdClfGibQEjyZ5j9AQg_kEnHn15lTCfVKZE03yWKDaO8OYDKy2K2eBEh1m9lW1yMk7bjQimmMdfj1R1EUJD0jfaHRMANU9QjsOVGMYUj4BAk7Gmvvt1u8vXSRsERvg.webp","local":"images/말랑핑.webp"},{"name":"샤샤핑","season":"4기","src":"https://i.namu.wiki/i/872DQoavVry_M2OTyM_vO6C9smjnn-SqDwIIzwXZvvwsOAFI3QfzN6-fSnR0TdKPtOZJEzx514s38Ycw16N3c3X4j4otN_9rj0zXulxXGbKYhJT8Cq0uJ0Ek8UyJizIYpVn2YOIXzeX8BJ7bGqvM5Q.webp","local":"images/샤샤핑.webp"},{"name":"새콤핑","season":"4기","src":"https://i.namu.wiki/i/YxBUFXSpxwtjI7ASVFRqXRZbammvCg56gcg8Hi8ZrXKYjPDwID56eVYkrNpOrH5Cl6S1kxfDGqzD-Jy12DitDd2N9aA2qMFdo8zNxY2npHQlsEVwRuqa9yMV5Y6rV1XT09_DBzRIcJCMu_tqP7lv4Q.webp","local":"images/새콤핑.webp"},{"name":"달콤핑","season":"4기","src":"https://i.namu.wiki/i/tjIZOauYvNwSXZ86N5s_23nct3o1m7fix7hGth14xMJQHPoEWpP8aBRoVNlFVkzF9vUHssR0ifj9Z-xvqmDa7LlK9xGDrXKHA9Gua4zL789S-3nJvQwRc6HjadPzrREqP_8Uzeuh6THfIAnPoNUnmQ.webp","local":"images/달콤핑.webp"},{"name":"뿌뿌핑","season":"4기","src":"https://i.namu.wiki/i/0EceX07J1BCO11TeoxpX4RWYLh4G7BURIaWykgEje5HzpRVAQUFfxp5KKNWSgAF-OSKqrokvs_Rjcd234XZJOXVBcloD77V4a6LVrrRYaxLgTcRnWBKDpz4eJseeq7A1M-VNGzkLlNJHr899Mu0PZQ.webp","local":"images/뿌뿌핑.webp"},{"name":"캔디핑","season":"4기","src":"https://i.namu.wiki/i/O8y1Ne4_7Khd0HO30h-MD9FhWv_u1LPjP6XYJhUsxAALi_d8H-pwkI-afUf1uYDRcfX5HCf6KJqT2uU_yU83AX4y2kw50Rxu9O6oZ2xWCcgeRtGf5o_A9z11txvXAI5ZdwkMnP1p7SsL4Enn1h250g.webp","local":"images/캔디핑.webp"},{"name":"머랭핑","season":"4기","src":"https://i.namu.wiki/i/4DjrKOrcjAjIIbWOZL28OgSKrnj-eaTz15fW0M5TP52ZigxtNk0JkzNIuL5vO6_Vh2sxPkLsEETC0EvItNVfoiO12xCVGPa9qa75U3-Q55RgSaZCsFupW9EF-z6SJohMF9VmwY38qAfaaezviSN6bw.webp","local":"images/머랭핑.webp"},{"name":"샌드핑","season":"4기","src":"https://i.namu.wiki/i/NHao3T-B3wivNADxgKh4Yr_AQ_7ulNQVSb0Q4ogZFImmLfuVo2liLGH1I8RMDm8tV7gq5chp_q0F7QcRAcPpcF1CFejtVfenb0bE1WqPzeMPlqBMtkGdUQLHGODb3p8RfREZABL0d0jREVoQN6vR5Q.webp","local":"images/샌드핑.webp"},{"name":"또너핑","season":"4기","src":"https://i.namu.wiki/i/ibVkY-JQ2j-9Zxq2R0eD-GWBXM24LNBJtQT4agrHQsJKnP3JJulPr5MhK32ZkhwSgNXfS7E9rb2NB8z9F1gYFDgzh4m0L7HdQ2203I2O7A5SY9DXWgPeetsEzIklU13jV7Q2UNH9_Vn0Sz_0kpRCZA.webp","local":"images/또너핑.webp"},{"name":"와플핑","season":"4기","src":"https://i.namu.wiki/i/dDWhVJ3uxgv4umsihNPGtcKc5JFXAY_fZa_DNb0cx3Cgf-qtiBKYKs9IhyxwmDrBejtLpQOlnuzy_fDRT-5vhdT0tWQ3WyepkTM6MJkq6GsLKChbF-tNDS3EDOgdkAx3Ssz35SilCeUl6GaO0QnHQA.webp","local":"images/와플핑.webp"},{"name":"롤리핑","season":"4기","src":"https://i.namu.wiki/i/ysn1ClQTIp6NtIgKkRW45D_HZ_ryONiw_QqFvX2fHzWGD_pZId0mG4G2ZTOW7HEBnVYy-yz88eth7hxGqdBMIHS_BmhopPYAtEgz5a5MYsKpRnV1nXCQ8S0P6hZRs5QTP9Sut02VQZfjiFMvW-2VNg.webp","local":"images/롤리핑.webp"},{"name":"마카핑","season":"4기","src":"https://i.namu.wiki/i/9IfzdS5pmvlzNQWn4O1PUJndQoSgypv_DugKv1V4wuk4htKQdfgNOdFBJe_ZhxyfmyYPAB9ZG43nntbAg_LL9_hb10ksgQKzM5UpBaAG4qS1QRYuDXmsrAWDGT_D3yqN-TTaGv1Y-XF8Ej0OMIB_Ow.webp","local":"images/마카핑.webp"},{"name":"핫케핑","season":"4기","src":"https://i.namu.wiki/i/2ojrYNHT3XRFSdtbnyXgnuhRlDIafsTO0WYPbuHpaWYBoqKyJfW8CxWk44KlbPir6RhDDHq-ejWVGBZdb78f0UVt-KnpKqAAZTYJgIeYMml1fmSTpGIlvqy9ColilgMOSUHtZdBPtkYjasEjIhlUEQ.webp","local":"images/핫케핑.webp"},{"name":"커핑 & 머핑","season":"4기","src":"https://i.namu.wiki/i/rTs8HIk3Vq0ts_dcuZhXehbTbZPywoiEFp-71EkSGkfcHj9s-6rws2bxc99BQteJgQu4WqPgek2XPmvSFZP1PwAcNtmRcbWUl4uwtnBiLwfvQ7QjBGDR9bD9610WfMuhqMGv9dV8MUOHUDSfxUbAkw.webp","local":"images/커핑 & 머핑.webp"},{"name":"요거핑","season":"4기","src":"https://i.namu.wiki/i/pMMxGtYAmSo8CBZCVbHarB2Lnez_2LJgAHoX-mor-QQvXFN9x8eBXKw6YzYCIUoHRnL9pza-nEXzqfP81sbPd33NX1xHGwGr2y9SKWrE94yGo9-FlKedsLxlloqa8_2Hg0X79_1a4L-xmU_v7pLmDA.webp","local":"images/요거핑.webp"},{"name":"눈꽃핑","season":"4기","src":"https://i.namu.wiki/i/nDzYyqMXu8B3SarceuvZ8MyhxRyj4caib2SV_KD7W5pGHLekOojA_pBhE4yTXFOdnln9CD19fYGSjbhNUe7xFywvVUWSr6KTVHExlb44nLH_Gbplgrc6ZVPwyH8bpx-WapxQBcf_Su4G4f9qO16bPQ.webp","local":"images/눈꽃핑.webp"},{"name":"푸딩핑","season":"4기","src":"https://i.namu.wiki/i/Z68AeVQWWZeJrrFuCc96FprSwO-c_QYVUh_cv8z7-87U5Ns-DCHiW7W9F7W-r_FLN_EuBWQLLf1Jxxu5VzSO_0WLJtCC_dP3mWLs6myG4b9kuBA_xUkqn7wVzs3R4VhYmr1V_pzqeiMsNvcjtoJ-bA.webp","local":"images/푸딩핑.webp"},{"name":"멜로핑","season":"4기","src":"https://i.namu.wiki/i/z2RI8qxgKYGEKwpJ-UGmlnDuM0F2IWU253FDOY9_c3NfV5UVMDt9ME9yFXTEsxJw7XESpTcyY6m0Xm67to81D7keU-Gl1t7LdOqRU6PczgzaJAA6A0Fkck6o2MFgo_7SLLS7rqp3ozASL3SvHZ7wkA.webp","local":"images/멜로핑.webp"},{"name":"쪼꼬핑","season":"4기","src":"https://i.namu.wiki/i/8hJwClTkhrKGJQLjpucY6UWm0xBudFJe0KDfye4xqOG-RNDumxVKXagCs_KUn7VMomBLlxtAVlbJI6QjhMlO-EtgSsARRm3LLZpeMBCb287IvCLoVzP5NB4cXKoSeRZq8Cpqe0F1s7GyN4R1cl4fJA.webp","local":"images/쪼꼬핑.webp"},{"name":"스타 하츄핑","season":"5기","src":"https://i.namu.wiki/i/JNsAlZC_y0zQ5gniIEsp9zK2QROKIniL00XTBwsrvZXS9rNifldpXkwvMTDPWZyNKh4UBBASn246pWvXRrPGwLUYKiqDWPw2qHC14qAcLps0kDMe93UEOZsF1JkTRG_RN28wLQYxotVonFUMzyBbJQ.webp","local":"images/스타 하츄핑.webp"},{"name":"빛나핑","season":"5기","src":"https://i.namu.wiki/i/wIJx7YrAappRJoEL0UD7uxDNexnwF95YWrEEqASUT3HXFreItzQKxaf9j3XugYe5bVyM5BEv37u4wQKUZTDqz-v7avUMA148S3zLGhxgq1RhWvnbrIfMrGbwWV9yCO_rzpoVWPp_d0SYMWKMr6y8eA.webp","local":"images/빛나핑.webp"},{"name":"초롱핑","season":"5기","src":"https://i.namu.wiki/i/rsyBGzkCyoea9eRMgqQrHfFIxAeND-gjkHAjzwWgiNH6WMEnsQFWGOgPsXLKd4-cfuQ0boePxbRrijKO6g787ChJnfDxFIVlqLBTh7L0oFedq6jJUt5dg9m9j9NZlpenoWcv72hdOZ1eTpR9VWIh2Q.webp","local":"images/초롱핑.webp"},{"name":"빤짝핑","season":"5기","src":"https://i.namu.wiki/i/ZJRj-vu7CbgcVYodkWu0KL1CMCKlsP79HY3fsX1YAj541k4_tdqesSYx2dnfVZhQSsaIjhrbPLQQXGIpIojwjZo2NRdHFU0HAlE9qP0aEqVMTDONckuS0IB9jnF_zHAoVoxCEhBMVHoPlDEjuJkPKw.webp","local":"images/빤짝핑.webp"},{"name":"왕자핑","season":"5기","src":"https://i.namu.wiki/i/MrPu9JLYd8Rsop70eh9htTxFSdLoWA7pEUv4ezPIjlF4ESj8Fy2Z13kaP-CK_4VVlECjpIoU6fmcv3BrN6mShjlV6x6DwwZGTYl-rdyKZRpO5kGmh8PfFYv6q2UBxgZuWpKAaanN7x6T533F7DgpNA.webp","local":"images/왕자핑.webp"},{"name":"오로라핑","season":"5기","src":"https://i.namu.wiki/i/FTufJD4Ou2V29UPmZTtM8LOZICW190bmozSKRWxtEO125ngN9OHw_UT8s9kEQoC-UNDNw4du7KQVdMheuDR4-eFr3tb0deejmvvZSGTk9sRuOaw4ljtWzZ8Hvy0qVzQl5TPKIVI735EwiqKR7bvk5Q.webp","local":"images/오로라핑.webp"},{"name":"깡총핑","season":"5기","src":"https://i.namu.wiki/i/H7-xE-SIHc2BOpHseh3ak81ag09x8Qm7HeaH46IlyKfh-sHiPUS91Sd4G5CFkvN9uqxY-fANTI6W6cph-0CvBlgpvk7DcjhSPvvyX0BBUceC6Oq3DE-2QNlsz7Udvwu2vcyly8v4eJJEw8EnnHvgaQ.webp","local":"images/깡총핑.webp"},{"name":"훌라핑","season":"5기","src":"https://i.namu.wiki/i/Rh3dSZcOt-Dl2TgNdsMwBZMZxcfl0OAq-iM-zoKDuO5mdLDBzED-Jbi5cUwgGMBpmdRmRTOd3Laf6kkw4LwnfpedLsQNiF72qvBdxN01KsKwIvwn78MvvN2sKbgaA5o36rPzpAe4kjKy88xGhm0RUQ.webp","local":"images/훌라핑.webp"},{"name":"나눔핑","season":"5기","src":"https://i.namu.wiki/i/ddm5SCDP6x_FyIbWv5G9lTQNds9DdTGEkBxuedT0eQeyHbngbyi2tSTgULcLQh_m5GeJWZBhkOt8SyBb_hZ9E6dsjbByHTnjSRRPo4cUuUMUSiDU6msyRp2Kh3snP5Y7btLo5fYfugyPZAbW4nw-9w.webp","local":"images/나눔핑.webp"},{"name":"딩동핑","season":"5기","src":"https://i.namu.wiki/i/s4hhRbwg8bdgGylYqdMnwE-oeoWHNj3uwfeqeP-q0m0O_TwQhNyECroCAfGWktH7zZGvG0gYW1XYSqRaXYkQnvI0nVel4GHn8wKtC6LF6rvtJF3q2xJmWQfL2OeeMUEhNyd2OyPzO9dYr4_AZ5ZB-g.webp","local":"images/딩동핑.webp"},{"name":"나그네핑","season":"5기","src":"https://i.namu.wiki/i/x8EtL1597mxUiP9BZKAJcQb0fNq4GuYeXv8Km8ijPwlb--6Qe2fGyOkjrd9g1RUXZabUPCGvkF6mn87eakiChahYz2FxC9a11Mwq18-A95Wq8L3TJLYkq7GdG92P5tmEVXmTfcrhtyZNm3GDStttTA.webp","local":"images/나그네핑.webp"},{"name":"고고핑","season":"5기","src":"https://i.namu.wiki/i/e_Nj0h_s3WIu7rKt5QEIS7kyBpmLFc31JyrVP81ApI0QF8dVdampevZWufcsbT-lev8BdB1RDxf2ljutEz8t_IyGzfehGambVVWSliBxcVDLFZqeZ9_UkXQ3HU-gbJq4vzf8G5_wpS6KyjTC8wW7LA.webp","local":"images/고고핑.webp"},{"name":"뿌쵸핑","season":"5기","src":"https://i.namu.wiki/i/bWkdTF4_3JGbQJdVAR0Nu3pl69eSMQj5viPKWh7iVw6d1ADYshuTy3l614WHUOtFwvlbzxHZWYWgBD_4YNp8tN3PE8Xmuqzcrn_Y63hnQXRM2hutZVf2KaOnj-5v7B3gUzSEG9VKbhTHkUE9tJA2jQ.webp","local":"images/뿌쵸핑.webp"},{"name":"고마핑","season":"5기","src":"https://i.namu.wiki/i/hzjl_JJuj8N16K7Emlx4GpDKldKB97UFeVuPZr9uTEL8o02Ro031oBivAdM4exCgZgYdintLzlHAWi3bxXh2c4x3u2ov206s7chB5DJM-uLN7WlFsccQgcWHrN0GJkMIirOOvLKN8eAlLY_CjAZVbw.webp","local":"images/고마핑.webp"},{"name":"아롱핑","season":"5기","src":"https://i.namu.wiki/i/xKOEHpuRpTwVItbgzdy5qRCDanxIQoNlKGKsMFrRMHKT27js7DW6MMegoC9OpzENziAXWTq4YVhdgP1zLBKoc6jfXSc7VR42XLgGTSto5nOgRKFI2PZ31PGcRcXg1bZdClTPDfZgmVD8pf0bT1aMyA.webp","local":"images/아롱핑.webp"},{"name":"다롱핑","season":"5기","src":"https://i.namu.wiki/i/fMXzCgL16tbWb0KUl1oK0lXZtgWJlZKTj1u8Z6IyWYJKKvP-tWgBWoOtA0vwVQPgSZAZ-aMSN3ZqUI_ho2hlLB1XcMwBat0-zGAOu6j9vdaoH0GBSdgrX3TwxF3PjVjD2CYQHKshu4xlKSN9GeRh2g.webp","local":"images/다롱핑.webp"},{"name":"뽀송핑","season":"5기","src":"https://i.namu.wiki/i/cfpHqzBZ3E2XL2bVt78Iq5PFXx0czIA7sT96EKW0pGHdmkfesFRnQxavCaBMy3f0z6KVc2Bt1HfvQrcmZla-tm3o_6b-l1Bs3DwjOitUzITYoEKrul83DqwZfmpy8zXZQ1timrOAishKKceYc5r4KA.webp","local":"images/뽀송핑.webp"},{"name":"유리핑","season":"5기","src":"https://i.namu.wiki/i/zHpY90FvN-u3bC_7MxuYn1qBUQQJBAxGN5SCu59tH3sb3FRefO-37y1tBVCvz0Hh4o5XveDRuErtigpDlxGgNmQbhLSrerb_EumTVYlW0nJUzl2eo1JxhfsBLsJh-t4At2H_uiFInvM4_N5m5aCm9A.webp","local":"images/유리핑.webp"},{"name":"함께핑","season":"5기","src":"https://i.namu.wiki/i/llvIAY6cGePRMr-j1UqKDzh-CWm94PXFLIG8adOgbSSASzIrfwOKYcUDSINkDZhEpYnnk2S1uYoBqsVn-2bb9o5hIUD6dpyIKo0Ds0aC4PXdvEdfImCjMLlMX560NX6-9uCtJK9cesXtdeO0mLWoPg.webp","local":"images/함께핑.webp"},{"name":"댄스핑","season":"5기","src":"https://i.namu.wiki/i/UNYXFgOnod1hfrvcWymPUT1X7z-ZjO5-NXWAiV_01127urD6NtVvSe4mV8E2pOlwEzXaP15nHfjfAWLnw2gJntf0dWM2B3wpRp46yMshN8evxJCb_ZLrBSEmv-3AshFLeYYe1qLwE2AMt-6iGJ03KA.webp","local":"images/댄스핑.webp"},{"name":"여우핑","season":"5기","src":"https://i.namu.wiki/i/peIqtQ8MNqjuf3yHFUx6n2v2XDrXA5Ef0Hv_SaIpw9XTcMkJ1U5HhRFyA3QS9bGApBJ-zfCVmnb5EDrSjdvpqz2cuQoIp-S83Ca_elsm9qRSLofkNpoTAGWkCD200N6mfE7NRslVg_b1GN682kRm3Q.webp","local":"images/여우핑.webp"},{"name":"루루핑","season":"5기","src":"https://i.namu.wiki/i/DbUeIJvTTCJWgEyejyYVD0KNyBGOgZ141H8w6EW3O3OVJekVBBCev2uHXcseuFe0BQO4_G6hwWfl2-4ILqUoNy0QB6OyxSx2vgu9NfQEZqgBNAM3-7HMXXuEoMDegNs9whhi1bH8aGWbIjtNVLKePw.webp","local":"images/루루핑.webp"},{"name":"몰래핑","season":"5기","src":"https://i.namu.wiki/i/ExEFirvwkTWGaUEa9ubwKqUDu8R2-pQ6NUCHAZR1M5EmiCaDKFuJD5R9hRCwZ7fUPsVY_KqxRrNTX0ootzg92DyfqaeGO4ZhH33T5dk9NsHxrUDgiweoc-lBKYCifIs7d_6l0AUs5yJiXVS5iCh6Qg.webp","local":"images/몰래핑.webp"},{"name":"뽀뽀핑","season":"5기","src":"https://i.namu.wiki/i/vohEucdVU7PFIWMntQTk6latIzAglpKGB3Wt9SEBx6qLA4zlgXTRVE_j09FY2uikKdVrwL4aT7DEOuWIkkUcSN2CXna2YMX3SmditLsBOQO8shxA3Tmy6EdYAg17HN7KvaSqbqA-WZMIhGrMkwrKog.webp","local":"images/뽀뽀핑.webp"},{"name":"프린세스 하츄핑","season":"6기","src":"https://i.namu.wiki/i/z58rSVrsS29xpJd9qDrw8kNlmyxtvZqitJcju9hGJFUm-Fp0y_NB6mlRZbQw40d8KsDD6qxS3CVKgfZaMdFWAYMYjMIOb7UoFOhrjabsgDLu-eecOry32es9KyxmKA33CL1L9SGJkjIrOBYFGx2Dlg.webp","local":"images/프린세스 하츄핑.webp"},{"name":"사뿐핑","season":"6기","src":"https://i.namu.wiki/i/CQNS658Ey-xJGbfTorw8XoOmwnR4jKNM6Rr8Eo2gTbX2BpTqJpKQa7mS_i4wD-6hJOEvl3QG7Jhuk3QivFSlgtmrHFPXT-DkRqNTX-KAS7iMg5wUw3BRTfcWaTTjiZ8uhPWf7IZ1bSQRdphafdWfMg.webp","local":"images/사뿐핑.webp"},{"name":"아름핑","season":"6기","src":"https://i.namu.wiki/i/HyGTmmQwi9-jfnEyjhIbrP0kcx-_p3PCDFCk1Y7uBIhk9Y9dNawi1vyr2Q8hqKbg93lecqdH-hlSJnu2MWpajM5-fnqXArtv2w6VPeQPRAUuvWyxu8vNUkyP8v2db_WUbS5GcYacEumSfS05c6zKdw.webp","local":"images/아름핑.webp"},{"name":"뽀니핑","season":"6기","src":"https://i.namu.wiki/i/Yi8970JO08Kp5QYBj5RCQEkZDUTzvgd1YG6SpeYwjID0Mngl5OYN03Jj1qRfz9t0CjskrWLXTYbnvMPNwARVZiabrL7fcccQ4FNJKySKGorbEtNBfi5F4ZD9NOo6rALo3supcJoJ0U20z270pAaVZw.webp","local":"images/뽀니핑.webp"},{"name":"이클립스핑","season":"6기","src":"https://i.namu.wiki/i/ZQyS3sOHgrFUJYm7Giw1Y2qluWCvFkU2LLo_XYM8hdrVIp0GhVVohDWYM3MrPZ3axXxsbN0WW_PffIK12KHZj3MD1ywkwph84TqtoRlVDat9q7s0kcmtLD_JUw8OfjNOFpK6O4UFlTKq1HeHCslSGg.webp","local":"images/이클립스핑.webp"},{"name":"다이아나핑","season":"6기","src":"https://i.namu.wiki/i/rHzp_IMaQOSGXs8Nr1aRAbf5LXMjiSip_uxF8XyIT6gfHoTm5GkFT8P53VLDxS51IqgSf8SOVn43gRQSod5P1yCI0fjiiEfGkm2PMcm9Kre22Z_-mrrqhAbLXoMkIqJRLkleDW71q8meo9czr-DV-A.webp","local":"images/다이아나핑.webp"},{"name":"뽀득핑","season":"6기","src":"https://i.namu.wiki/i/8-W9gQAr8B0cnx1_u36dCI-T7jWtg8sx-0578jZVBqmAFgyyruZFUP3840x-OZnSB-XQxe8M75DYec8K0t54d9aEfDbBbm-hJ-aVRS7H2XnKj7dp1tsk8DP9IYa6UlN2N_vY7c11NfSLiTMpsC_WoA.webp","local":"images/뽀득핑.webp"},{"name":"차밍핑","season":"6기","src":"https://i.namu.wiki/i/sl4QGV6pnTBaEUAJavo0nAh8rCqRDML8ukz6QzxA0ReAAccYglG0uvMRSyysBww4EAIJMcWpxsciYRb_L4z_l7GKYKtqHDkvz7PeAA8hQaUMCjYmKnt4Bet_tc5kh6CnFO86tCAqJiWQhkpdTDczSA.webp","local":"images/차밍핑.webp"},{"name":"나비핑","season":"6기","src":"https://i.namu.wiki/i/1lXTPb8ppCh2ufLAL5s3D3e09bcivYftBtfmv5TR-Ajhpy2yS9s81chb87IxDt2kxjXDOT-MZLUfqOrg-4CD5wJGZbuf0QCFLML9FszrXcqcHGx66dy2q7LwvrbC-XTNp1LYMxdkM_9aSyhI36Zl7w.webp","local":"images/나비핑.webp"},{"name":"실크핑","season":"6기","src":"https://i.namu.wiki/i/ojDS7OrZaV2Xd4VnzwP8hYwEvT4A0yTkMAy9Fg3YRLp6q39lHbENvLxFQnO1f7cQIl35g7m8DhXKayTe7FUyYS3jtVBGEjGulVp_uZyjOStxYcjvjLXMcpkRV8-Slq3HadaDModwA9HeU0ZoY_NlaQ.webp","local":"images/실크핑.webp"},{"name":"스노우핑","season":"6기","src":"https://i.namu.wiki/i/jBU-M-EzNL8Exk2DFvvkjFTVGkoiqaUnQ5MyzMqAymDaJ9Tdu4et4P4eIB6J6LLRJeyFqmEoF8aT0xqNE2zA0Dv23v5vaFT4DY0lrFNran6MAOnS6Zq5TRuva0RBGrTM86oDy9R3CJgwp_hHxo8Vfw.webp","local":"images/스노우핑.webp"},{"name":"이슬핑","season":"6기","src":"https://i.namu.wiki/i/zN2W-39Rd8QCY7PTdki_3UIf3PJt_MwOnARALF7xzuoxdALA5ekmoC4yBFa2eHvkiMpQc05_O7X7NUEK-ksl9wXpsSaS9rA2ohHth8zCOQ9iThPEH6ZBqKQ8nAAeMUFqZhMTe-fSRTLpOgbarUXgIg.webp","local":"images/이슬핑.webp"},{"name":"쿨쿨핑","season":"6기","src":"https://i.namu.wiki/i/tD_hnhBOcmE7vWsTQ5a5GxWe9w12Bg9rDhyPTGrNL6eBuNQJsMT9G3I5mtylkP8PxZvijhB3-k0j986SDVLDFjvQnJKwsXN7UtWjR651h2RJsgEEhHaPLg9sCDYcZRdAiXh-_sSSoY-eZxt0mvPXtQ.webp","local":"images/쿨쿨핑.webp"},{"name":"슈슈핑","season":"6기","src":"https://i.namu.wiki/i/AofRJG1yOVWXeSeJbmbGT8mKOyiU-f_tW8VQt71Hh5mFbKB7WKQlOheVbALT_67kr_9IkPEaLUedMNTUf57mbbkuhOqcuEleKQyUkL0-CFOBS-YssYxlg_uA-t-7t9K0RG6NnjtJ2wL_cs-RSsVeNQ.webp","local":"images/슈슈핑.webp"},{"name":"롱롱핑","season":"6기","src":"https://i.namu.wiki/i/pHV64JcieFNndfJWjwbxsJ8bvTZrqZbJsh7wShQ5or8BYyKQTlPNikdfvt387wtRmcLTNZl7lZBpwrNE4x6chBOoOj0LAajt1puKSNQ3v08_al5CrZ427KMz1OskT39FIITJvf7U2hzw83TYFzMkaQ.webp","local":"images/롱롱핑.webp"},{"name":"큐핑","season":"6기","src":"https://i.namu.wiki/i/fPla7A2Yk8x7AGmY-UT_dsa9lTkVIb7zIn74qNVUQtFDc8YC70rpMBz6CsLBBCWeOdGnZe9jvT9GRLamiDiLwmzkEVqUyCgsZIfe2bRUnqcN4F-v8ejFepy1jY-QVAhSd4FDNPq3x7LPpLN0YVy1tw.webp","local":"images/큐핑.webp"},{"name":"야옹핑","season":"6기","src":"https://i.namu.wiki/i/hlzYh3PxOo7UL6_CFBsgvpmUY76N0_l4WNcvi5Pgsmbwq2TxhaB0J8hq1P8_dL7Tq97onlef4wizIWTTqysZMdeMAYd9jOj_IiiOQzEYaFdXyYzI2CDsGRxeQPt7LYruHOtRLmyG7_LKg3XxGJqC9Q.webp","local":"images/야옹핑.webp"},{"name":"샤를핑","season":"6기","src":"https://i.namu.wiki/i/WuYboqv9lOrqD6LTttW0a8PLvJAZ6iXS9XLPXCHuWZ0Nt8ZsrpOyI1Uhpi-KGK6_UBGJ3YbzCi6adLBwBUBbPxfTTXlvoO4dVlzgY-sBBYeDuNL44jMHTu_wqWH9EE-152rRSFYVT7ZbQWjcA73znA.webp","local":"images/샤를핑.webp"},{"name":"트롯핑","season":"6기","src":"https://i.namu.wiki/i/eUiAzfzhTj89B3Q1-8cdzaLrYZew_psDI7EHqrGJBnFwAOuQq5xPIhaFfuUi4gn_GKIu1UjnDZRSQvEM3IIIGLnwHLvc0Nx2GHMxv-hFIKQUAjuLzSHileyHOFoQY_Thil0emE--bmRLghSDoAhvJg.webp","local":"images/트롯핑.webp"},{"name":"깨굴핑","season":"6기","src":"https://i.namu.wiki/i/i712-2mM618Zifshwct5pSCyA9GA4GTH6ZYwdzbwMcwL5l4hE4_kpPYCX5eh0fw5zl_HtLKtw0DDxIi7lvYMqpWyFt9yhQ86E5rRDXMDIDH51I5fSXgGvEk_gN5XePYtkjP_CI-b3nYfEiG61Nvmig.webp","local":"images/깨굴핑.webp"},{"name":"젠틀핑","season":"6기","src":"https://i.namu.wiki/i/pkL8RPtDo4t_SNkIM1nQ_8nbJ8V7q_mXZAjQDwOujS1ZXaNnLJVjlrFUB7B8h_LnZ3OPrDqiaWDiHJivDWnMHQINAS4wt_hKmgYGINmOj3bPOdhSvk84FFn-Si05-zmhD23l3Y8lUaxm1eazs6qX8w.webp","local":"images/젠틀핑.webp"},{"name":"뿌뿌핑","season":"극장판2","src":"https://i.namu.wiki/i/J8Bua-0eMbpbLAtQ4zhSAfijjGHt9RnIO2Ai_cZXcoRgYvvo4at-ZTTnXilP1R-jBJZY-Skyika5sd1fc21QfxO911u0GdM0IVUZ5JdgYFU-d5w9J-7GRwS43FA9OzEZKiPw-imnOMrkoT-AvM5lVw.webp","local":"images/뿌뿌핑.webp"},{"name":"고고핑","season":"극장판2","src":"https://i.namu.wiki/i/kQMgh01b2-HBweKLfvKwzfFfqQrAxY12Qkcvh28US6wRnv1l2q-mFotbMWjae3UqPIZc62KTPydflIUu8TArIeyCTSJtvRZALZqZ6TbYyDdezL7DisuyMRts6wL1KOHREbiyCaJ-AGrzvtqdamtyCg.webp","local":"images/고고핑.webp"},{"name":"고마핑","season":"극장판2","src":"https://i.namu.wiki/i/LkRw5tdGoW51kiiHEXBzPkz7ZQMyY1GGQTsWmaV3qP09CreipWzE-ZsVg7cDU9dO7DRMTs5jd18GVWtDPKz4wdysACK7uhp5h97Q5fEkzH4MOS9dcD6TL2eJQlINigy29qsNI8BKokhhSiAqQQCXoA.webp","local":"images/고마핑.webp"},{"name":"뽀송핑","season":"극장판2","src":"https://i.namu.wiki/i/VEoMWtx2HJ8sj62Q1Anidhj-0F7aIXgbShGxi2QmoZL3vA0Eg9RfCXS9WgolpRtDiJMGLuB1Q5iTanTI_A7SsQ.webp","local":"images/뽀송핑.webp"},{"name":"유리핑","season":"극장판2","src":"https://i.namu.wiki/i/2pUyrKYWSbqwwO9PD8CfFc7WCw-a7GNIrHfgKfvwHilnpnd9f8Fxh1E-Aj-DL2EqjnkiHpIVQKh-HN1ckFPAVg.webp","local":"images/유리핑.webp"},{"name":"함께핑","season":"극장판2","src":"https://i.namu.wiki/i/VHWs1G0MU29Z40nLSP2n7UcpDKvU1UeDDRKrusXgjthtekeMu4mnWVqUK1MAHzhWXm1JPEXv70ndsZtU2EPiWw.webp","local":"images/함께핑.webp"},{"name":"댄스핑","season":"극장판2","src":"https://i.namu.wiki/i/4TGg25uicSF4hOeRVxYKNVQygfa3mEq2dJvBTjYRJVUbi1e_RckN_N8xeujWm2nsvV1jMfIFLF3Rvao_dVbWfQ.webp","local":"images/댄스핑.webp"},{"name":"루루핑","season":"극장판2","src":"https://i.namu.wiki/i/7bvbacgDSi1PrWrAcecFkmhwR2I_6S6xW-dyzNWpgu_QiqWjze-XTTVUXy0Iha7qE5CpAt4jH_9J12xSSOUjGA.webp","local":"images/루루핑.webp"},{"name":"트러핑","season":"극장판2","src":"https://i.namu.wiki/i/rU1sM2mhkorA9P39JG1WjzvTCsXBkGECyVNJcq6uipyXrgZndYO5YbrQ3yZQaKk1BgCGcfOMGqilKKTE-_ADE84WfUUKtL88zcL1KfJPjs3tXI1hkCABTXoD10BoMTKT6YWyYlm-FOEdDNUkek6XBA.webp","local":"images/트러핑.webp"},{"name":"가면핑","season":"극장판2","src":"https://i.namu.wiki/i/baia75LkWGdlYOF_ZSIYExHpHMVM686iBmrdyYHau8D791UsLpEp2SgoDNEkICNPhzWFYTXRMAvSJoZgKqeqOhUJRJ33wx2MKaGCjMC6EG_4L0X8da0RP8Yb_LwJ3khCDKxE5kSqKA_PFOBcuQBMlA.webp","local":"images/가면핑.webp"},{"name":"뿌뿌핑","season":"극장판2","src":"https://i.namu.wiki/i/uR6ibouAAEdrjgTDYpHyFXJ-MS_AMQWjElCSdfIIw0FsmiVRxXaT4uQcdgtlPFVqQFRMX6By7kS00CS7SBVlQ7FuW5vimgtXrD4wgFm8cws7KgJN7zjMhCfbSeHETyvcb3K4MVECTDI0baEXdjIh2w.webp","local":"images/뿌뿌핑.webp"},{"name":"이클립스핑","season":"극장판2","src":"https://i.namu.wiki/i/hRgcuUF6BADVNaEMCYgV60ZqBc_q-fFdrbuOqDgtkDLIqBQjui0xJuxTP5qdM8gEqNTDH5O2ayBTJ-hPCaOvOLp3iVUniChbXxpnnhkT28GF1TRvB8O2u60YxPRYglhUoDlH5O22-vPLK_JISfpF_g.webp","local":"images/이클립스핑.webp"}];
+const ALL_DATA = [{"name":"하츄핑","season":"1기","local":"images/하츄핑.webp"},{"name":"바로핑","season":"1기","local":"images/바로핑.webp"},{"name":"아자핑","season":"1기","local":"images/아자핑.webp"},{"name":"차차핑","season":"1기","local":"images/차차핑.webp"},{"name":"라라핑","season":"1기","local":"images/라라핑.webp"},{"name":"해핑","season":"1기","local":"images/해핑.webp"},{"name":"키키핑","season":"1기","local":"images/키키핑.webp"},{"name":"아잉핑","season":"1기","local":"images/아잉핑.webp"},{"name":"부끄핑","season":"1기","local":"images/부끄핑.webp"},{"name":"부투핑","season":"1기","local":"images/부투핑.webp"},{"name":"깜빡핑","season":"1기","local":"images/깜빡핑.webp"},{"name":"띠용핑","season":"1기","local":"images/띠용핑.webp"},{"name":"주르핑","season":"1기","local":"images/주르핑.webp"},{"name":"차나핑","season":"1기","local":"images/차나핑.webp"},{"name":"따라핑","season":"1기","local":"images/따라핑.webp"},{"name":"나르핑","season":"1기","local":"images/나르핑.webp"},{"name":"무셔핑","season":"1기","local":"images/무셔핑.webp"},{"name":"투투핑","season":"1기","local":"images/투투핑.webp"},{"name":"차캐핑","season":"1기","local":"images/차캐핑.webp"},{"name":"떠벌핑","season":"1기","local":"images/떠벌핑.webp"},{"name":"다조핑","season":"1기","local":"images/다조핑.webp"},{"name":"화나핑","season":"1기","local":"images/화나핑.webp"},{"name":"시러핑","season":"1기","local":"images/시러핑.webp"},{"name":"바네핑","season":"1기","local":"images/바네핑.webp"},{"name":"악동핑","season":"1기","local":"images/악동핑.webp"},{"name":"덜덜핑","season":"1기","local":"images/덜덜핑.webp"},{"name":"그림핑","season":"1기","local":"images/그림핑.webp"},{"name":"무거핑","season":"1기","local":"images/무거핑.webp"},{"name":"꺼꿀핑","season":"1기","local":"images/꺼꿀핑.webp"},{"name":"씽씽핑","season":"1기","local":"images/씽씽핑.webp"},{"name":"베베핑","season":"1기","local":"images/베베핑.webp"},{"name":"코자핑","season":"1기","local":"images/코자핑.webp"},{"name":"딱풀핑","season":"1기","local":"images/딱풀핑.webp"},{"name":"모야핑","season":"1기","local":"images/모야핑.webp"},{"name":"토이핑","season":"1기","local":"images/토이핑.webp"},{"name":"또까핑","season":"1기","local":"images/또까핑.webp"},{"name":"플라핑","season":"1기","local":"images/플라핑.webp"},{"name":"노라핑&노리핑","season":"1기","local":"images/노라핑&노리핑.webp"},{"name":"아휴핑","season":"1기","local":"images/아휴핑.webp"},{"name":"똑똑핑","season":"1기","local":"images/똑똑핑.webp"},{"name":"꽁꽁핑","season":"1기","local":"images/꽁꽁핑.webp"},{"name":"찌릿핑","season":"1기","local":"images/찌릿핑.webp"},{"name":"홀로핑","season":"1기","local":"images/홀로핑.webp"},{"name":"앙대핑","season":"1기","local":"images/앙대핑.webp"},{"name":"다이아 하츄핑","season":"2기","local":"images/다이아 하츄핑.webp"},{"name":"조아핑","season":"2기","local":"images/조아핑.webp"},{"name":"방글핑","season":"2기","local":"images/방글핑.webp"},{"name":"믿어핑","season":"2기","local":"images/믿어핑.webp"},{"name":"까르핑","season":"2기","local":"images/까르핑.webp"},{"name":"아야핑","season":"2기","local":"images/아야핑.webp"},{"name":"소원핑","season":"2기","local":"images/소원핑.webp"},{"name":"토닥핑","season":"2기","local":"images/토닥핑.webp"},{"name":"쪼꼼핑","season":"2기","local":"images/쪼꼼핑.webp"},{"name":"싹싹핑","season":"2기","local":"images/싹싹핑.webp"},{"name":"맛나핑","season":"2기","local":"images/맛나핑.webp"},{"name":"포근핑","season":"2기","local":"images/포근핑.webp"},{"name":"메모핑","season":"2기","local":"images/메모핑.webp"},{"name":"다해핑","season":"2기","local":"images/다해핑.webp"},{"name":"공쥬핑","season":"2기","local":"images/공쥬핑.webp"},{"name":"짝짝핑","season":"2기","local":"images/짝짝핑.webp"},{"name":"주네핑","season":"2기","local":"images/주네핑.webp"},{"name":"뚝딱핑","season":"2기","local":"images/뚝딱핑.webp"},{"name":"발레핑","season":"2기","local":"images/발레핑.webp"},{"name":"원더핑","season":"2기","local":"images/원더핑.webp"},{"name":"플로라 하츄핑","season":"3기","local":"images/플로라 하츄핑.webp"},{"name":"꾸래핑","season":"3기","local":"images/꾸래핑.webp"},{"name":"솔찌핑","season":"3기","local":"images/솔찌핑.webp"},{"name":"나나핑","season":"3기","local":"images/나나핑.webp"},{"name":"행운핑","season":"3기","local":"images/행운핑.webp"},{"name":"빨리핑","season":"3기","local":"images/빨리핑.webp"},{"name":"얌얌핑","season":"3기","local":"images/얌얌핑.webp"},{"name":"뜨거핑","season":"3기","local":"images/뜨거핑.webp"},{"name":"삐뽀핑","season":"3기","local":"images/삐뽀핑.webp"},{"name":"간호핑","season":"3기","local":"images/간호핑.webp"},{"name":"힘내핑","season":"3기","local":"images/힘내핑.webp"},{"name":"고쳐핑","season":"3기","local":"images/고쳐핑.webp"},{"name":"아라핑","season":"3기","local":"images/아라핑.webp"},{"name":"패션핑","season":"3기","local":"images/패션핑.webp"},{"name":"꼼딱핑","season":"3기","local":"images/꼼딱핑.webp"},{"name":"퐁당핑","season":"3기","local":"images/퐁당핑.webp"},{"name":"파티핑","season":"3기","local":"images/파티핑.webp"},{"name":"꾸며핑","season":"3기","local":"images/꾸며핑.webp"},{"name":"삐짐핑","season":"3기","local":"images/삐짐핑.webp"},{"name":"아아핑","season":"3기","local":"images/아아핑.webp"},{"name":"빙글핑","season":"3기","local":"images/빙글핑.webp"},{"name":"베리 하츄핑","season":"4기","local":"images/베리 하츄핑.webp"},{"name":"포실핑","season":"4기","local":"images/포실핑.webp"},{"name":"말랑핑","season":"4기","local":"images/말랑핑.webp"},{"name":"샤샤핑","season":"4기","local":"images/샤샤핑.webp"},{"name":"새콤핑","season":"4기","local":"images/새콤핑.webp"},{"name":"달콤핑","season":"4기","local":"images/달콤핑.webp"},{"name":"뿌뿌핑","season":"4기","local":"images/뿌뿌핑.webp"},{"name":"캔디핑","season":"4기","local":"images/캔디핑.webp"},{"name":"머랭핑","season":"4기","local":"images/머랭핑.webp"},{"name":"샌드핑","season":"4기","local":"images/샌드핑.webp"},{"name":"또너핑","season":"4기","local":"images/또너핑.webp"},{"name":"와플핑","season":"4기","local":"images/와플핑.webp"},{"name":"롤리핑","season":"4기","local":"images/롤리핑.webp"},{"name":"마카핑","season":"4기","local":"images/마카핑.webp"},{"name":"핫케핑","season":"4기","local":"images/핫케핑.webp"},{"name":"커핑 & 머핑","season":"4기","local":"images/커핑 & 머핑.webp"},{"name":"요거핑","season":"4기","local":"images/요거핑.webp"},{"name":"눈꽃핑","season":"4기","local":"images/눈꽃핑.webp"},{"name":"푸딩핑","season":"4기","local":"images/푸딩핑.webp"},{"name":"멜로핑","season":"4기","local":"images/멜로핑.webp"},{"name":"쪼꼬핑","season":"4기","local":"images/쪼꼬핑.webp"},{"name":"스타 하츄핑","season":"5기","local":"images/스타 하츄핑.webp"},{"name":"빛나핑","season":"5기","local":"images/빛나핑.webp"},{"name":"초롱핑","season":"5기","local":"images/초롱핑.webp"},{"name":"빤짝핑","season":"5기","local":"images/빤짝핑.webp"},{"name":"왕자핑","season":"5기","local":"images/왕자핑.webp"},{"name":"오로라핑","season":"5기","local":"images/오로라핑.webp"},{"name":"깡총핑","season":"5기","local":"images/깡총핑.webp"},{"name":"훌라핑","season":"5기","local":"images/훌라핑.webp"},{"name":"나눔핑","season":"5기","local":"images/나눔핑.webp"},{"name":"딩동핑","season":"5기","local":"images/딩동핑.webp"},{"name":"나그네핑","season":"5기","local":"images/나그네핑.webp"},{"name":"고고핑","season":"5기","local":"images/고고핑.webp"},{"name":"뿌쵸핑","season":"5기","local":"images/뿌쵸핑.webp"},{"name":"고마핑","season":"5기","local":"images/고마핑.webp"},{"name":"아롱핑","season":"5기","local":"images/아롱핑.webp"},{"name":"다롱핑","season":"5기","local":"images/다롱핑.webp"},{"name":"뽀송핑","season":"5기","local":"images/뽀송핑.webp"},{"name":"유리핑","season":"5기","local":"images/유리핑.webp"},{"name":"함께핑","season":"5기","local":"images/함께핑.webp"},{"name":"댄스핑","season":"5기","local":"images/댄스핑.webp"},{"name":"여우핑","season":"5기","local":"images/여우핑.webp"},{"name":"루루핑","season":"5기","local":"images/루루핑.webp"},{"name":"몰래핑","season":"5기","local":"images/몰래핑.webp"},{"name":"뽀뽀핑","season":"5기","local":"images/뽀뽀핑.webp"},{"name":"프린세스 하츄핑","season":"6기","local":"images/프린세스 하츄핑.webp"},{"name":"사뿐핑","season":"6기","local":"images/사뿐핑.webp"},{"name":"아름핑","season":"6기","local":"images/아름핑.webp"},{"name":"뽀니핑","season":"6기","local":"images/뽀니핑.webp"},{"name":"이클립스핑","season":"6기","local":"images/이클립스핑.webp"},{"name":"다이아나핑","season":"6기","local":"images/다이아나핑.webp"},{"name":"뽀득핑","season":"6기","local":"images/뽀득핑.webp"},{"name":"차밍핑","season":"6기","local":"images/차밍핑.webp"},{"name":"나비핑","season":"6기","local":"images/나비핑.webp"},{"name":"실크핑","season":"6기","local":"images/실크핑.webp"},{"name":"스노우핑","season":"6기","local":"images/스노우핑.webp"},{"name":"이슬핑","season":"6기","local":"images/이슬핑.webp"},{"name":"쿨쿨핑","season":"6기","local":"images/쿨쿨핑.webp"},{"name":"슈슈핑","season":"6기","local":"images/슈슈핑.webp"},{"name":"롱롱핑","season":"6기","local":"images/롱롱핑.webp"},{"name":"큐핑","season":"6기","local":"images/큐핑.webp"},{"name":"야옹핑","season":"6기","local":"images/야옹핑.webp"},{"name":"샤를핑","season":"6기","local":"images/샤를핑.webp"},{"name":"트롯핑","season":"6기","local":"images/트롯핑.webp"},{"name":"깨굴핑","season":"6기","local":"images/깨굴핑.webp"},{"name":"젠틀핑","season":"6기","local":"images/젠틀핑.webp"},{"name":"뿌뿌핑","season":"극장판","local":"images/뿌뿌핑.webp"},{"name":"고고핑","season":"극장판","local":"images/고고핑.webp"},{"name":"고마핑","season":"극장판","local":"images/고마핑.webp"},{"name":"뽀송핑","season":"극장판","local":"images/뽀송핑.webp"},{"name":"유리핑","season":"극장판","local":"images/유리핑.webp"},{"name":"함께핑","season":"극장판","local":"images/함께핑.webp"},{"name":"댄스핑","season":"극장판","local":"images/댄스핑.webp"},{"name":"루루핑","season":"극장판","local":"images/루루핑.webp"},{"name":"트러핑","season":"극장판","local":"images/트러핑.webp"},{"name":"가면핑","season":"극장판","local":"images/가면핑.webp"},{"name":"이클립스핑","season":"극장판","local":"images/이클립스핑.webp"}];
 
-let pool=[], queue=[], current=null;
-let currentFilter='all', currentMode='input';
-let score=0, correctCount=0, wrongCount=0;
-let hintUsed=false, answered=false;
+/* ── STORAGE ── */
+const K = { seed:'tp_seed', col:'tp_collected', daily:'tp_daily' };
 
-function setFilter(f) {
-  currentFilter=f;
-  document.querySelectorAll('.filter-btn').forEach(b => {
-    const l=b.textContent.trim();
-    b.classList.toggle('active',(f==='all'&&l==='전체')||(f==='극장판'&&l==='극장판')||l===f);
+function getSeed() {
+  let s = localStorage.getItem(K.seed);
+  if (!s) { s = String(Math.floor(Math.random()*99991)); localStorage.setItem(K.seed, s); }
+  return parseInt(s);
+}
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+
+function getDailyState() {
+  const today = todayKey();
+  const raw = localStorage.getItem(K.daily);
+  if (raw) {
+    const st = JSON.parse(raw);
+    if (st.date === today) return st;
+  }
+  const seed = getSeed();
+  const dayNum = Math.floor(Date.now() / 86400000);
+  const idx = (seed * 31 + dayNum * 7) % ALL_DATA.length;
+  const st = { date: today, idx, played: false, correct: false };
+  localStorage.setItem(K.daily, JSON.stringify(st));
+  return st;
+}
+
+function saveDailyState(st) { localStorage.setItem(K.daily, JSON.stringify(st)); }
+
+function getCollected() { return new Set(JSON.parse(localStorage.getItem(K.col)||'[]')); }
+function addCollected(key) {
+  const c = getCollected(); c.add(key);
+  localStorage.setItem(K.col, JSON.stringify([...c]));
+}
+function entryKey(e) { return e.name + '__' + e.season; }
+
+/* ── SCREEN SWITCH ── */
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ── HOME ── */
+function goHome() { show('s-home'); renderHome(); }
+
+function renderHome() {
+  const st = getDailyState();
+  const entry = ALL_DATA[st.idx];
+  const col = getCollected();
+
+  const img = document.getElementById('h-img');
+  img.src = entry.local;
+  const nameEl = document.getElementById('h-name');
+  const seasonEl = document.getElementById('h-season');
+  const playedArea = document.getElementById('h-played-area');
+  const playBtn = document.getElementById('h-play-btn');
+
+  if (st.played) {
+    img.className = '';
+    nameEl.textContent = entry.name;
+    seasonEl.textContent = seasonLabel(entry.season);
+    if (st.correct) {
+      playedArea.innerHTML = `<div class="played-badge"><span class="played-badge-icon">🎉</span><div class="played-badge-text">정답! <strong>${entry.name}</strong>을(를) 도감에 추가했어요!</div></div>`;
+    } else {
+      playedArea.innerHTML = `<div class="played-badge"><span class="played-badge-icon">💔</span><div class="played-badge-text">오늘은 아쉽게도 틀렸어요. 내일 다시 도전해봐요!</div></div>`;
+    }
+    playBtn.textContent = '내일 다시 도전하세요!';
+    playBtn.disabled = true;
+  } else {
+    img.className = 'silhouette';
+    nameEl.textContent = '???';
+    seasonEl.textContent = '이 티니핑의 이름을 맞춰보세요!';
+    playedArea.innerHTML = '';
+    playBtn.textContent = '🎮 이름 맞추기 시작!';
+    playBtn.disabled = false;
+  }
+
+  const total = ALL_DATA.length;
+  const cnt = col.size;
+  document.getElementById('h-dex-count').textContent = `${cnt} / ${total}`;
+  document.getElementById('h-prog').style.width = `${(cnt/total)*100}%`;
+}
+
+/* ── GAME ── */
+let hintUsed = false;
+
+function startGame() {
+  show('s-game');
+  hintUsed = false;
+  const st = getDailyState();
+  const entry = ALL_DATA[st.idx];
+
+  document.getElementById('g-badge').textContent = seasonLabel(entry.season);
+  document.getElementById('g-img').src = entry.local;
+  document.getElementById('g-hint-box').classList.remove('show');
+  document.getElementById('g-hint-btn').style.display = 'inline';
+
+  // Build 4 choices: correct + 3 unique wrong names
+  const usedNames = new Set([entry.name]);
+  const wrongs = [];
+  const pool = ALL_DATA.slice().sort(() => Math.random() - 0.5);
+  for (const e of pool) {
+    if (!usedNames.has(e.name)) { wrongs.push(e); usedNames.add(e.name); }
+    if (wrongs.length === 3) break;
+  }
+  const choices = [entry, ...wrongs].sort(() => Math.random() - 0.5);
+
+  const choicesEl = document.getElementById('g-choices');
+  choicesEl.innerHTML = '';
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c.name;
+    btn.onclick = () => pick(btn, c.name, entry);
+    choicesEl.appendChild(btn);
   });
-  restart();
 }
-function setMode(m) {
-  currentMode=m;
-  document.querySelectorAll('.mode-btn').forEach(b =>
-    b.classList.toggle('active', b.textContent.includes(m==='input'?'입력':'4지')));
-  document.getElementById('input-mode').style.display  = m==='input'  ? '' : 'none';
-  document.getElementById('choice-mode').style.display = m==='choice' ? '' : 'none';
-  restart();
-}
-function shuffle(a) {
-  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
-  return a;
-}
-function restart() {
-  if(currentFilter==='all') pool=[...ALL_DATA];
-  else if(currentFilter==='극장판') pool=ALL_DATA.filter(t=>t.season.startsWith('극장판'));
-  else pool=ALL_DATA.filter(t=>t.season===currentFilter);
-  queue=shuffle([...pool]);
-  score=0; correctCount=0; wrongCount=0; updateScore();
-  document.getElementById('result-screen').classList.remove('show');
-  document.getElementById('game-card').style.display='';
-  nextQuestion();
-}
-function nextQuestion() {
-  answered=false; hintUsed=false;
-  document.getElementById('feedback').textContent='';
-  document.getElementById('feedback').className='feedback';
-  document.getElementById('answer-input').value='';
-  document.getElementById('answer-input').disabled=false;
-  document.getElementById('hint-btn').textContent='💡 힌트 (첫 글자)';
-  if(queue.length===0){showResult();return;}
-  current=queue.pop();
-  document.getElementById('char-img').src=current.local||current.src;
-  document.getElementById('season-badge').textContent=current.season;
-  document.getElementById('progress').textContent=(pool.length-queue.length)+' / '+pool.length;
-  if(currentMode==='choice') buildChoices();
-  else document.getElementById('answer-input').focus();
-}
-function buildChoices() {
-  const others=shuffle(ALL_DATA.filter(t=>t.name!==current.name)).slice(0,3);
-  const opts=shuffle([current,...others]);
-  const box=document.getElementById('choices'); box.innerHTML='';
-  opts.forEach(o=>{
-    const btn=document.createElement('button');
-    btn.className='choice-btn'; btn.textContent=o.name;
-    btn.onclick=()=>selectChoice(o.name===current.name,btn);
-    box.appendChild(btn);
+
+function pick(btn, chosen, entry) {
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === entry.name) b.classList.add('correct');
+    else if (b === btn) b.classList.add('wrong');
   });
+  const isCorrect = chosen === entry.name;
+  const st = getDailyState();
+  st.played = true; st.correct = isCorrect;
+  saveDailyState(st);
+  if (isCorrect) addCollected(entryKey(entry));
+  setTimeout(() => showResult(entry, isCorrect), 900);
 }
-function selectChoice(isCorrect,btn) {
-  if(answered) return; answered=true;
-  const fb=document.getElementById('feedback');
-  if(isCorrect){score+=10;correctCount++;btn.classList.add('correct-ans');fb.textContent='✅ 정답! +10점';fb.className='feedback correct';}
-  else{wrongCount++;btn.classList.add('wrong-ans');document.querySelectorAll('.choice-btn').forEach(b=>{if(b.textContent===current.name)b.classList.add('correct-ans');});fb.textContent='❌ 틀렸어요! 정답: '+current.name;fb.className='feedback wrong';}
-  updateScore(); setTimeout(nextQuestion,1600);
-}
-function checkAnswer() {
-  if(answered){nextQuestion();return;}
-  const input=document.getElementById('answer-input').value.trim();
-  if(!input) return;
-  const fb=document.getElementById('feedback');
-  if(input===current.name){const pts=hintUsed?5:10;score+=pts;correctCount++;fb.textContent='✅ 정답! +'+pts+'점'+(hintUsed?' (힌트 사용)':'');fb.className='feedback correct';}
-  else{wrongCount++;fb.textContent='❌ 틀렸어요! 정답: '+current.name;fb.className='feedback wrong';}
-  answered=true; document.getElementById('answer-input').disabled=true;
-  document.getElementById('answer-input').value=current.name;
-  updateScore(); setTimeout(nextQuestion,1600);
-}
-function skip() {
-  if(answered) return; wrongCount++;
-  document.getElementById('feedback').textContent='⏭ 건너뜀! 정답: '+current.name;
-  document.getElementById('feedback').className='feedback wrong';
-  answered=true; updateScore(); setTimeout(nextQuestion,1600);
-}
+
 function showHint() {
-  if(answered) return; hintUsed=true;
-  const n=current.name;
-  document.getElementById('hint-btn').textContent='힌트: '+n[0]+'_'.repeat(n.length-1);
+  hintUsed = true;
+  const st = getDailyState();
+  const entry = ALL_DATA[st.idx];
+  document.getElementById('g-hint-box').textContent = `첫 글자: ${entry.name[0]}`;
+  document.getElementById('g-hint-box').classList.add('show');
+  document.getElementById('g-hint-btn').style.display = 'none';
 }
-function updateScore() {
-  document.getElementById('score').textContent=score;
-  document.getElementById('correct').textContent=correctCount;
-  document.getElementById('wrong').textContent=wrongCount;
+
+/* ── RESULT ── */
+function showResult(entry, isCorrect) {
+  show('s-result');
+  document.getElementById('r-emoji').textContent = isCorrect ? '🎉' : '💔';
+  document.getElementById('r-img').src = entry.local;
+  document.getElementById('r-name').textContent = entry.name;
+  document.getElementById('r-season').textContent = seasonLabel(entry.season);
+  const msg = document.getElementById('r-msg');
+  if (isCorrect) { msg.textContent = '도감에 추가됐어요! ✨'; msg.className = 'result-msg ok'; }
+  else { msg.textContent = '정답을 확인하고 내일 다시 도전해봐요!'; msg.className = 'result-msg ng'; }
 }
-function showResult() {
-  document.getElementById('game-card').style.display='none';
-  document.getElementById('result-screen').classList.add('show');
-  const pct=Math.round(correctCount/pool.length*100);
-  document.getElementById('result-emoji').textContent=pct>=80?'🏆':pct>=50?'💕':'😅';
-  document.getElementById('result-title').textContent=pct>=80?'티니핑 박사!':pct>=50?'잘했어요!':'더 연습해봐요!';
-  document.getElementById('result-score').textContent='총 점수: '+score+'점  |  정답: '+correctCount+'/'+pool.length+' ('+pct+'%)';
+
+/* ── DEX ── */
+const SEASON_TABS = ['전체','1기','2기','3기','4기','5기','6기','극장판'];
+const SEASON_NAMES = {'1기':'큐브 티니핑','2기':'보석 티니핑','3기':'열쇠 티니핑','4기':'디저트 티니핑','5기':'스타 티니핑','6기':'프린세스 티니핑','극장판':'극장판'};
+let curTab = '전체';
+
+function seasonLabel(s) { return s.startsWith('극장판') ? '극장판' : s; }
+
+function showDex() {
+  show('s-dex');
+  renderDex();
 }
-restart();
+
+function renderDex() {
+  const col = getCollected();
+  document.getElementById('d-header-count').textContent = `${col.size} / ${ALL_DATA.length} 수집`;
+
+  // Tabs
+  const tabsEl = document.getElementById('d-tabs');
+  tabsEl.innerHTML = '';
+  SEASON_TABS.forEach(tab => {
+    const btn = document.createElement('button');
+    btn.className = 'dex-tab' + (tab === curTab ? ' active' : '');
+    btn.textContent = tab;
+    btn.onclick = () => { curTab = tab; renderDex(); };
+    tabsEl.appendChild(btn);
+  });
+
+  const body = document.getElementById('d-body');
+  body.innerHTML = '';
+
+  if (curTab === '전체') {
+    // Group by season
+    ['1기','2기','3기','4기','5기','6기','극장판'].forEach(season => {
+      const items = ALL_DATA.filter(e => seasonLabel(e.season) === season);
+      const gotCount = items.filter(e => col.has(entryKey(e))).length;
+      const grp = document.createElement('div');
+      grp.className = 'season-group';
+      const title = document.createElement('div');
+      title.className = 'season-group-title';
+      title.innerHTML = `<span>${season} ${SEASON_NAMES[season]?`(${SEASON_NAMES[season]})`:''}` +
+        `</span><span class="season-group-count">${gotCount}/${items.length}</span>`;
+      grp.appendChild(title);
+      grp.appendChild(buildGrid(items, col));
+      body.appendChild(grp);
+    });
+  } else {
+    const items = ALL_DATA.filter(e => seasonLabel(e.season) === curTab);
+    const gotCount = items.filter(e => col.has(entryKey(e))).length;
+    const progWrap = document.createElement('div');
+    progWrap.style.cssText = 'padding:0 2px 12px;';
+    progWrap.innerHTML = `<div style="display:flex;justify-content:space-between;font-size:.75rem;color:#aaa;margin-bottom:5px;">
+      <span>${curTab} 수집 현황</span><span style="color:var(--pink);font-weight:700">${gotCount}/${items.length}</span>
+    </div>
+    <div class="prog-bg"><div class="prog-fill" style="width:${items.length?(gotCount/items.length*100):0}%"></div></div>`;
+    body.appendChild(progWrap);
+    body.appendChild(buildGrid(items, col));
+  }
+}
+
+function buildGrid(items, col) {
+  const grid = document.createElement('div');
+  grid.className = 'dex-grid';
+  items.forEach(entry => {
+    const got = col.has(entryKey(entry));
+    const cell = document.createElement('div');
+    cell.className = 'dex-cell ' + (got ? 'got' : 'locked');
+    cell.innerHTML = `<img src="${entry.local}" alt="${got ? entry.name : '???'}">
+      <div class="dex-cell-name">${got ? entry.name : '???'}</div>`;
+    grid.appendChild(cell);
+  });
+  return grid;
+}
+
+/* ── INIT ── */
+renderHome();
 </script>
 </body>
 </html>
