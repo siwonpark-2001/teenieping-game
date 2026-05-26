@@ -4,7 +4,7 @@
 
 ## 플레이
 
-👉 **[게임 하러 가기](https://tinipinggame.vercel.app)**
+👉 **[게임 하러 가기](https://teenieping-game.vercel.app)**
 
 ## 기능
 
