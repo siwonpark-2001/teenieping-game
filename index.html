@@ -185,7 +185,8 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:line
       <div class="result-msg" id="r-msg"></div>
     </div>
     <div class="result-btns">
-      <button class="btn-dex-go" onclick="showDex()">📖 도감 보기</button>
+      <button class="btn-dex-go" onclick="startGame()">다음 티니핑! →</button>
+      <button class="btn-home" onclick="showDex()">📖 도감 보기</button>
       <button class="btn-home" onclick="goHome()">메인으로 돌아가기</button>
     </div>
   </div>
@@ -256,36 +257,18 @@ function show(id) {
 function goHome() { show('s-home'); renderHome(); }
 
 function renderHome() {
-  const st = getDailyState();
-  const entry = ALL_DATA[st.idx];
   const col = getCollected();
 
+  // 항상 실루엣 + 시작 버튼 활성화 (테스트 모드)
   const img = document.getElementById('h-img');
-  img.src = entry.local;
-  const nameEl = document.getElementById('h-name');
-  const seasonEl = document.getElementById('h-season');
-  const playedArea = document.getElementById('h-played-area');
-  const playBtn = document.getElementById('h-play-btn');
-
-  if (st.played) {
-    img.className = '';
-    nameEl.textContent = entry.name;
-    seasonEl.textContent = seasonLabel(entry.season);
-    if (st.correct) {
-      playedArea.innerHTML = `<div class="played-badge"><span class="played-badge-icon">🎉</span><div class="played-badge-text">정답! <strong>${entry.name}</strong>을(를) 도감에 추가했어요!</div></div>`;
-    } else {
-      playedArea.innerHTML = `<div class="played-badge"><span class="played-badge-icon">💔</span><div class="played-badge-text">오늘은 아쉽게도 틀렸어요. 내일 다시 도전해봐요!</div></div>`;
-    }
-    playBtn.textContent = '내일 다시 도전하세요!';
-    playBtn.disabled = true;
-  } else {
-    img.className = 'silhouette';
-    nameEl.textContent = '???';
-    seasonEl.textContent = '이 티니핑의 이름을 맞춰보세요!';
-    playedArea.innerHTML = '';
-    playBtn.textContent = '🎮 이름 맞추기 시작!';
-    playBtn.disabled = false;
-  }
+  const previewEntry = ALL_DATA[Math.floor(Math.random() * ALL_DATA.length)];
+  img.src = previewEntry.local;
+  img.className = 'silhouette';
+  document.getElementById('h-name').textContent = '???';
+  document.getElementById('h-season').textContent = '이 티니핑의 이름을 맞춰보세요!';
+  document.getElementById('h-played-area').innerHTML = '';
+  document.getElementById('h-play-btn').textContent = '🎮 이름 맞추기 시작!';
+  document.getElementById('h-play-btn').disabled = false;
 
   const total = ALL_DATA.length;
   const cnt = col.size;
@@ -295,15 +278,19 @@ function renderHome() {
 
 /* ── GAME ── */
 let hintUsed = false;
+let currentEntry = null;
 
-function startGame() {
+function pickRandom() {
+  return ALL_DATA[Math.floor(Math.random() * ALL_DATA.length)];
+}
+
+function startGame(entry) {
   show('s-game');
   hintUsed = false;
-  const st = getDailyState();
-  const entry = ALL_DATA[st.idx];
+  currentEntry = entry || pickRandom();
 
-  document.getElementById('g-badge').textContent = seasonLabel(entry.season);
-  document.getElementById('g-img').src = entry.local;
+  document.getElementById('g-badge').textContent = seasonLabel(currentEntry.season);
+  document.getElementById('g-img').src = currentEntry.local;
   document.getElementById('g-hint-box').classList.remove('show');
   document.getElementById('g-hint-btn').style.display = 'inline';
   document.getElementById('g-feedback').textContent = '';
@@ -320,50 +307,37 @@ function checkAnswer() {
   const val = input.value.trim();
   if (!val) return;
 
-  const st = getDailyState();
-  const entry = ALL_DATA[st.idx];
-  const isCorrect = val === entry.name;
-
+  const isCorrect = val === currentEntry.name;
   const fb = document.getElementById('g-feedback');
+
   if (isCorrect) {
     fb.textContent = '🎉 정답!';
     fb.className = 'feedback ok';
     input.disabled = true;
     document.getElementById('g-submit').disabled = true;
     document.getElementById('g-skip').disabled = true;
-    st.played = true; st.correct = true;
-    saveDailyState(st);
-    addCollected(entryKey(entry));
-    setTimeout(() => showResult(entry, true), 800);
+    addCollected(entryKey(currentEntry));
+    setTimeout(() => showResult(currentEntry, true), 800);
   } else {
     fb.textContent = '❌ 틀렸어요! 다시 시도해보세요.';
     fb.className = 'feedback ng';
     input.value = '';
     input.focus();
-    // 흔들기 애니메이션
     input.style.animation = 'none';
-    requestAnimationFrame(() => {
-      input.style.animation = 'shake .35s ease';
-    });
+    requestAnimationFrame(() => { input.style.animation = 'shake .35s ease'; });
   }
 }
 
 function giveUp() {
-  const st = getDailyState();
-  const entry = ALL_DATA[st.idx];
-  st.played = true; st.correct = false;
-  saveDailyState(st);
   document.getElementById('g-input').disabled = true;
   document.getElementById('g-submit').disabled = true;
   document.getElementById('g-skip').disabled = true;
-  showResult(entry, false);
+  showResult(currentEntry, false);
 }
 
 function showHint() {
   hintUsed = true;
-  const st = getDailyState();
-  const entry = ALL_DATA[st.idx];
-  document.getElementById('g-hint-box').textContent = `첫 글자: ${entry.name[0]}`;
+  document.getElementById('g-hint-box').textContent = `첫 글자: ${currentEntry.name[0]}`;
   document.getElementById('g-hint-box').classList.add('show');
   document.getElementById('g-hint-btn').style.display = 'none';
 }
