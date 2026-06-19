@@ -237,16 +237,6 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:line
 .store-exchange-btn{flex-shrink:0;background:linear-gradient(135deg,var(--pink),var(--purple));color:white;border:none;border-radius:12px;padding:8px 11px;font-size:.76rem;font-weight:700;cursor:pointer;text-align:center;min-width:56px;line-height:1.4;}
 .store-exchange-btn:disabled{background:#ddd;color:#aaa;cursor:default;}
 .store-cost-small{font-size:.62rem;opacity:.85;}
-/* ─── 프로필 꾸미기 아이템 ─── */
-.pcat-lbl{font-size:.72rem;font-weight:700;color:#bbb;margin:10px 0 6px;padding-left:2px;}
-.pitem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
-.pitem-card{background:white;border-radius:14px;padding:10px 6px 8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07);border:2.5px solid transparent;position:relative;cursor:pointer;transition:all .15s;}
-.pitem-card.p-owned{border-color:#a29bfe;}
-.pitem-card.p-equipped{border-color:var(--pink);background:#fff5fb;}
-.pitem-cbadge{position:absolute;top:3px;right:3px;background:var(--pink);color:white;font-size:.5rem;font-weight:700;border-radius:6px;padding:1px 4px;line-height:1.3;}
-.pitem-emoji{font-size:1.55rem;margin-bottom:3px;display:block;}
-.pitem-name{font-size:.65rem;font-weight:700;color:#444;line-height:1.2;display:block;}
-.pitem-cost{font-size:.6rem;color:#bbb;margin-top:2px;display:block;}
 /* Revival modal */
 #ma-revival-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:8000;display:none;align-items:center;justify-content:center;padding:20px;}
 #ma-revival-modal.show{display:flex;}
@@ -1224,7 +1214,7 @@ function closeMilestonePopup() {
 }
 
 /* ── STORAGE ── */
-const K = { seed:'tp_seed', col:'tp_collected', daily:'tp_daily', dc:'tp_dc', nick:'tp_nick', posts:'tp_posts', wrong:'tp_wrong', partnerCode:'tp_partner_code', partners:'tp_partners', tokens:'tp_hint_tokens', items:'tp_items', missions:'tp_missions', coupons:'tp_coupons', dqState:'tp_dq_state', dqStreak:'tp_dq_streak', postCount:'tp_post_count', onboarded:'tp_onboarded', pOwned:'tp_p_owned', pEquipped:'tp_p_equipped', raffles:'tp_raffles', gifts:'tp_gifts', credits:'tp_credits' };
+const K = { seed:'tp_seed', col:'tp_collected', daily:'tp_daily', dc:'tp_dc', nick:'tp_nick', posts:'tp_posts', wrong:'tp_wrong', partnerCode:'tp_partner_code', partners:'tp_partners', tokens:'tp_hint_tokens', items:'tp_items', missions:'tp_missions', coupons:'tp_coupons', dqState:'tp_dq_state', dqStreak:'tp_dq_streak', postCount:'tp_post_count', onboarded:'tp_onboarded', raffles:'tp_raffles', gifts:'tp_gifts', credits:'tp_credits' };
 
 function getSeed() {
   let s = localStorage.getItem(K.seed);
@@ -1324,8 +1314,6 @@ function renderProfile() {
   var col = getCollected();
   var freeBest = parseInt(localStorage.getItem('tp_free_best') || '0');
   var dqStreak = parseInt(localStorage.getItem(K.dqStreak) || '0');
-  var eq = getPEquipped();
-
   var avatarEl = document.getElementById('pf-avatar');
   var nickEl = document.getElementById('pf-nick');
   var titleEl = document.getElementById('pf-title-badge');
@@ -1334,34 +1322,14 @@ function renderProfile() {
   var colEl = document.getElementById('pf-collected');
   var spEl = document.getElementById('pf-speed-best');
   var qsEl = document.getElementById('pf-quiz-streak-num');
-  var headerEl = document.querySelector('#s-profile .profile-header');
 
-  if (avatarEl) {
-    avatarEl.textContent = '💕';
-    // 장착된 프레임 적용
-    if (eq.frame) {
-      var fi = PROFILE_ITEMS.find(function(x){ return x.key === eq.frame; });
-      avatarEl.style.cssText = fi ? fi.frameStyle : '';
-    } else {
-      avatarEl.style.cssText = '';
-    }
-  }
+  if (avatarEl) avatarEl.textContent = '💕';
   if (nickEl) nickEl.textContent = nick || '닉네임 미설정';
   if (coinEl) coinEl.textContent = coins;
   if (colEl) colEl.textContent = col.size;
   if (spEl) spEl.textContent = freeBest;
   if (qsEl) qsEl.textContent = dqStreak;
   if (streakEl) streakEl.textContent = '📅 퀴즈 ' + dqStreak + '일 연속';
-
-  // 장착된 배경 테마 적용
-  if (headerEl) {
-    if (eq.bg) {
-      var bi = PROFILE_ITEMS.find(function(x){ return x.key === eq.bg; });
-      headerEl.style.background = bi ? bi.headerGrad : '';
-    } else {
-      headerEl.style.background = '';
-    }
-  }
 
   // 현재 대표 칭호
   var earnedTitles = TITLE_LIST.filter(function(t) {
@@ -1370,37 +1338,21 @@ function renderProfile() {
   if (titleEl) titleEl.textContent = earnedTitles.length ? earnedTitles[earnedTitles.length-1].name : '칭호 없음';
 
   // 마이핑 룸
-  renderMyPingRoom(col, eq);
+  renderMyPingRoom(col);
 
   // 칭호 목록
   renderProfileTitles(col.size, freeBest, dqStreak);
 }
-function renderMyPingRoom(col, eq) {
+function renderMyPingRoom(col) {
   var roomEl = document.getElementById('pf-room');
   if (!roomEl) return;
-  if (!eq) eq = getPEquipped();
   var collected = ALL_DATA.filter(function(d) { return col.has(entryKey(d)); });
-
-  // 데코 아이템 렌더
-  var owned = getPOwnedItems();
-  var decoItems = PROFILE_ITEMS.filter(function(p){ return p.cat === 'deco' && owned.indexOf(p.key) !== -1; });
-  var decoHtml = '';
-  if (decoItems.length > 0) {
-    decoHtml = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;width:100%;">' +
-      decoItems.map(function(d) {
-        var isEq = eq.deco === d.key;
-        return '<span style="font-size:1.5rem;cursor:pointer;opacity:' + (isEq?'1':'.45') + ';transition:opacity .15s;" ' +
-          'title="' + d.name + '" onclick="equipPItem(\'' + d.key + '\')">' + d.emoji + '</span>';
-      }).join('') +
-    '</div>';
-  }
-
-  if (collected.length === 0 && decoItems.length === 0) {
+  if (collected.length === 0) {
     roomEl.innerHTML = '<div class="room-empty">수집한 티니핑이 없어요<br>게임을 플레이해서 모아보세요!</div>';
     return;
   }
   var show5 = collected.slice(0, 5);
-  roomEl.innerHTML = decoHtml + show5.map(function(d) {
+  roomEl.innerHTML = show5.map(function(d) {
     return '<img class="room-ping" src="' + d.local + '" alt="' + d.name + '" title="' + d.name + '">';
   }).join('');
 }
@@ -1988,25 +1940,6 @@ var GIFT_LIST = [
   { key:'gift_sticker',  name:'스티커팩 교환권', emoji:'🎁', cost:50,  desc:'티니핑 스티커팩 1세트 증정' },
   { key:'gift_figure',   name:'피규어 교환권',   emoji:'🎀', cost:150, desc:'랜덤 티니핑 미니피규어 1개 증정' },
 ];
-var PROFILE_ITEMS = [
-  /* 프레임 */
-  { key:'frame_heart',   cat:'frame', name:'하트 프레임',   emoji:'💗', cost:20,  frameStyle:'box-shadow:0 0 0 4px #ff69b4,0 0 0 6px rgba(255,105,180,.3);' },
-  { key:'frame_star',    cat:'frame', name:'별빛 프레임',   emoji:'⭐', cost:35,  frameStyle:'box-shadow:0 0 0 4px #ffd700,0 0 0 6px rgba(255,215,0,.3);' },
-  { key:'frame_rainbow', cat:'frame', name:'무지개 프레임', emoji:'🌈', cost:65,  frameStyle:'box-shadow:0 0 0 4px #a29bfe,0 0 0 6px rgba(162,155,254,.3);' },
-  /* 배경 */
-  { key:'bg_pink',    cat:'bg', name:'핑크 하늘',   emoji:'🌸', cost:15, headerGrad:'linear-gradient(135deg,#f8b4d9,#e05090)' },
-  { key:'bg_night',   cat:'bg', name:'별밤 테마',   emoji:'🌙', cost:30, headerGrad:'linear-gradient(135deg,#1a237e,#4a148c)' },
-  { key:'bg_garden',  cat:'bg', name:'티니핑 정원', emoji:'🌺', cost:50, headerGrad:'linear-gradient(135deg,#2e7d32,#1565c0)' },
-  { key:'bg_sunset',  cat:'bg', name:'노을 테마',   emoji:'🌅', cost:40, headerGrad:'linear-gradient(135deg,#e65100,#c62828)' },
-  /* 룸 데코 */
-  { key:'deco_cushion', cat:'deco', name:'별 쿠션',     emoji:'⭐', cost:10 },
-  { key:'deco_curtain', cat:'deco', name:'하트 커튼',   emoji:'💝', cost:25 },
-  { key:'deco_window',  cat:'deco', name:'무지개 창문', emoji:'🌈', cost:45 },
-  { key:'deco_rug',     cat:'deco', name:'핑크 러그',   emoji:'🌸', cost:15 },
-  { key:'deco_trophy',  cat:'deco', name:'트로피 선반', emoji:'🏆', cost:35 },
-  { key:'deco_poster',  cat:'deco', name:'티니핑 포스터', emoji:'🖼️', cost:20 },
-];
-
 /* ── MISSION / COUPON 데이터 (renderHome 초기화 전 선언 필수) ── */
 var MISSION_LIST = [
   { key: 'dquiz',   emoji: '📝', label: '오늘의 퀴즈 완료',    reward: 5 },
@@ -2924,8 +2857,6 @@ function renderShop() {
   if (tokenEl) tokenEl.textContent = tokens;
   var body = document.getElementById('shop-body');
   if (!body) return;
-  var eq = getPEquipped();
-  var owned = getPOwnedItems();
   var html = '';
 
   /* ── 1. 할인 쿠폰 ── */
@@ -3006,38 +2937,6 @@ function renderShop() {
     '</div>';
   });
 
-  /* ── 5. 프로필 꾸미기 ── */
-  html += '<div class="shop-section-lbl" style="margin-top:16px;">🎨 프로필 꾸미기</div>';
-  html += '<div style="font-size:.7rem;color:#bbb;margin-bottom:6px;">구매 후 프로필 탭에서 장착하세요!</div>';
-
-  var cats = [
-    { id:'frame', label:'🖼 프로필 프레임' },
-    { id:'bg',    label:'🎨 배경 테마' },
-    { id:'deco',  label:'🏠 마이핑 룸 데코' },
-  ];
-  cats.forEach(function(cat) {
-    html += '<div class="pcat-lbl">' + cat.label + '</div>';
-    html += '<div class="pitem-grid">';
-    PROFILE_ITEMS.filter(function(p){ return p.cat === cat.id; }).forEach(function(p) {
-      var isOwned = owned.indexOf(p.key) !== -1;
-      var isEq = eq[p.cat] === p.key;
-      var cls = isEq ? 'pitem-card p-owned p-equipped' : isOwned ? 'pitem-card p-owned' : 'pitem-card';
-      var badge = isEq ? '<span class="pitem-cbadge">장착중</span>' : isOwned ? '<span class="pitem-cbadge" style="background:#a29bfe;">보유</span>' : '';
-      var btnLabel = isEq ? '해제' : isOwned ? '장착' : '구매';
-      var fn = isOwned ? 'equipPItem' : 'buyPItem';
-      var costOrBtn = isOwned
-        ? '<span class="pitem-cost" style="color:var(--pink);">' + (isEq ? '장착 해제' : '탭하여 장착') + '</span>'
-        : '<span class="pitem-cost">💎 ' + p.cost + '</span>';
-      html += '<div class="' + cls + '" onclick="' + fn + '(\'' + p.key + '\')">' +
-        badge +
-        '<span class="pitem-emoji">' + p.emoji + '</span>' +
-        '<span class="pitem-name">' + p.name + '</span>' +
-        costOrBtn +
-      '</div>';
-    });
-    html += '</div>';
-  });
-
   /* ── 코인 획득 방법 ── */
   html += '<div class="shop-section-lbl" style="margin-top:16px;">💎 이모션코인 획득 방법</div>';
   html += '<div style="background:white;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.06);">' +
@@ -3054,39 +2953,6 @@ function _coinEarnRow(em, title, sub) {
     '<span style="font-size:1.4rem;">' + em + '</span>' +
     '<div><div style="font-size:.85rem;font-weight:700;color:#333;">' + title + '</div>' +
     '<div style="font-size:.73rem;color:#aaa;">' + sub + '</div></div></div>';
-}
-
-/* 프로필 아이템 헬퍼 */
-function getPOwnedItems() {
-  try { return JSON.parse(localStorage.getItem(K.pOwned) || '[]'); } catch(e) { return []; }
-}
-function getPEquipped() {
-  try { return JSON.parse(localStorage.getItem(K.pEquipped) || '{}'); } catch(e) { return {}; }
-}
-function hasPItem(key) { return getPOwnedItems().indexOf(key) !== -1; }
-
-function buyPItem(key) {
-  var item = PROFILE_ITEMS.find(function(x){ return x.key === key; });
-  if (!item) return;
-  if (hasPItem(key)) { equipPItem(key); return; }
-  var tokens = getTokens();
-  if (tokens < item.cost) { showMissionToast('💎 코인 부족!', '필요: ' + item.cost + ' / 보유: ' + tokens, false); return; }
-  addTokens(-item.cost);
-  var o = getPOwnedItems(); o.push(key);
-  localStorage.setItem(K.pOwned, JSON.stringify(o));
-  showMissionToast('🎨 구매 완료!', item.name + ' 획득!', false);
-  renderShop();
-}
-function equipPItem(key) {
-  var item = PROFILE_ITEMS.find(function(x){ return x.key === key; });
-  if (!item || !hasPItem(key)) return;
-  var eq = getPEquipped();
-  if (eq[item.cat] === key) { delete eq[item.cat]; } else { eq[item.cat] = key; }
-  localStorage.setItem(K.pEquipped, JSON.stringify(eq));
-  renderShop();
-  // 프로필 화면이 열려있으면 즉시 반영
-  var pf = document.getElementById('s-profile');
-  if (pf && pf.classList.contains('active')) renderProfile();
 }
 
 /* 적립금 교환 */
