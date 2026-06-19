@@ -2212,7 +2212,6 @@ function freeCheck() {
 
 function endFreeMode() {
   clearInterval(freeTimer);
-  completeMission('free');
   var total = freePool.length;
   var pct = total > 0 ? Math.round(freeCorrect / total * 100) : 0;
   var prev = parseInt(localStorage.getItem('tp_free_best') || '0');
