@@ -1028,6 +1028,10 @@ body{font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:line
       <div style="display:inline-block;">
         <img id="ld-img" src="" alt="" class="learn-detail-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22><rect width=%22160%22 height=%22160%22 rx=%2220%22 fill=%22%23f8e8f8%22/><text x=%2280%22 y=%2295%22 font-size=%2260%22 text-anchor=%22middle%22>💕</text></svg>'">
       </div>
+      <div id="ld-gif-wrap" style="margin-top:12px;border-radius:14px;overflow:hidden;background:#f8f0ff;border:1.5px solid #f0d8ff;display:none;">
+        <img id="ld-gif" src="" alt="" style="width:100%;max-height:200px;object-fit:contain;display:block;"
+          onerror="document.getElementById('ld-gif-wrap').style.display='none'">
+      </div>
     </div>
     <div style="text-align:center;padding:0 20px 6px;">
       <div id="ld-name" style="font-size:1.5rem;font-weight:900;color:#333;margin-bottom:4px;"></div>
@@ -3583,6 +3587,13 @@ function openLearnDetail(key) {
   document.getElementById('ld-season-badge').textContent = entry.season;
   document.getElementById('ld-img').src = entry.local;
   document.getElementById('ld-name').textContent = entry.name;
+
+  var ldGifWrap = document.getElementById('ld-gif-wrap');
+  var ldGif = document.getElementById('ld-gif');
+  var gifSrc = 'images/hints/' + encodeURIComponent(entry.name + '_' + entry.season) + '.gif';
+  ldGif.src = gifSrc;
+  ldGifWrap.style.display = 'block';
+  ldGif.onerror = function() { ldGifWrap.style.display = 'none'; };
 
   var typeEl = document.getElementById('ld-type');
   if (typeText) { typeEl.textContent = typeText; typeEl.style.display = 'inline-block'; }
