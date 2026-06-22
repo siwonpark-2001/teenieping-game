@@ -1594,10 +1594,10 @@ function showHint(stage) {
     const wrap = document.getElementById('g-hint-gif-wrap');
     const img  = document.getElementById('g-hint-gif');
     const ph   = document.getElementById('g-hint-gif-ph');
-    // 파일 규칙: images/hints/캐릭터명.gif  (없으면 onerror → placeholder)
+    // 파일 규칙: images/hints/캐릭터명_기수.gif  (없으면 onerror → placeholder)
     img.style.display = 'block';
     ph.style.display  = 'none';
-    img.src = 'images/hints/' + encodeURIComponent(currentEntry.name) + '.gif';
+    img.src = 'images/hints/' + encodeURIComponent(currentEntry.name + '_' + currentEntry.season) + '.gif';
     wrap.style.display = 'block';
     // 힌트 2 버튼 노출
     document.getElementById('g-hint-btn2').style.display = 'inline';
